@@ -32,7 +32,12 @@ import {
 } from '../../../utils/room';
 import { nameInitials } from '../../../utils/common';
 import { RoomAvatar } from '../../../components/room-avatar';
-import { addRoomIdToMDirect, getMxIdLocalPart, guessDmRoomUserId } from '../../../utils/matrix';
+import {
+  addRoomIdToMDirect,
+  getMxIdLocalPart,
+  getMxIdServer,
+  guessDmRoomUserId,
+} from '../../../utils/matrix';
 import { Time } from '../../../components/message';
 import { useElementSizeObserver } from '../../../hooks/useElementSizeObserver';
 import { onEnterOrSpace, stopPropagation } from '../../../utils/keyboard';
@@ -64,6 +69,7 @@ function InviteCard({ room, userId, direct, compact, onNavigate }: InviteCardPro
   const senderName = senderId
     ? getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId
     : undefined;
+  const serverName = senderId ? getMxIdServer(senderId) : undefined;
 
   const topic = useRoomTopic(room);
 
@@ -102,6 +108,12 @@ function InviteCard({ room, userId, direct, compact, onNavigate }: InviteCardPro
         <Box grow="Yes">
           <Text size="T200" priority="300" truncate>
             Invited by <b>{senderName}</b>
+            {serverName && (
+              <>
+                {' on '}
+                <b>{serverName}</b>
+              </>
+            )}
           </Text>
         </Box>
         <Box shrink="No">
