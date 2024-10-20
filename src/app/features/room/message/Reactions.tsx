@@ -40,7 +40,25 @@ export const Reactions = as<'div', ReactionsProps>(
     const reactions = useRelations(
       relations,
       useCallback((rel) => [...(rel.getSortedAnnotationsByKey() ?? [])], [])
-    );
+    ).map((reaction) => {
+      const events = Array.from(reaction[1]);
+
+      // Track unique userIds using a Set to filter efficiently
+      const existingUserIds = new Set();
+      const uniqueEvents = events.filter((event) => {
+        const userId = event.sender?.userId;
+        if (!userId || existingUserIds.has(userId)) {
+          return false; // If already exist, filter out the event
+        }
+        existingUserIds.add(userId); // Mark this userId as exis
+        return true;
+      });
+
+      // eslint-disable-next-line no-param-reassign
+      reaction[1] = new Set(uniqueEvents);
+
+      return reaction;
+    });
 
     const handleViewReaction: MouseEventHandler<HTMLButtonElement> = (evt) => {
       evt.stopPropagation();

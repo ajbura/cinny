@@ -40,7 +40,25 @@ export const ReactionViewer = as<'div', ReactionViewerProps>(
     const reactions = useRelations(
       relations,
       useCallback((rel) => [...(rel.getSortedAnnotationsByKey() ?? [])], [])
-    );
+    ).map((reaction) => {
+      const events = Array.from(reaction[1]);
+
+      // Track unique userIds using a Set to filter efficiently
+      const existingUserIds = new Set();
+      const uniqueEvents = events.filter((event) => {
+        const userId = event.sender?.userId;
+        if (!userId || existingUserIds.has(userId)) {
+          return false; // If already exist, filter out the event
+        }
+        existingUserIds.add(userId); // Mark this userId as exis
+        return true;
+      });
+
+      // eslint-disable-next-line no-param-reassign
+      reaction[1] = new Set(uniqueEvents);
+
+      return reaction;
+    });
 
     const [selectedKey, setSelectedKey] = useState<string>(() => {
       if (initialKey) return initialKey;
@@ -111,15 +129,17 @@ export const ReactionViewer = as<'div', ReactionViewerProps>(
                   const name = (member ? getName(member) : getMxIdLocalPart(senderId)) ?? senderId;
 
                   const avatarMxcUrl = member?.getMxcAvatarUrl();
-                  const avatarUrl = avatarMxcUrl ? mx.mxcUrlToHttp(
-                    avatarMxcUrl,
-                    100,
-                    100,
-                    'crop',
-                    undefined,
-                    false,
-                    useAuthentication
-                  ) : undefined;
+                  const avatarUrl = avatarMxcUrl
+                    ? mx.mxcUrlToHttp(
+                        avatarMxcUrl,
+                        100,
+                        100,
+                        'crop',
+                        undefined,
+                        false,
+                        useAuthentication
+                      )
+                    : undefined;
 
                   return (
                     <MenuItem
