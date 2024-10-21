@@ -48,7 +48,7 @@
     "formik": "2.4.6",
     "html-dom-parser": "4.0.0",
     "html-react-parser": "4.2.0",
-    "i18next": "23.12.2",
+    "i18next": "23.16.2",
     "i18next-browser-languagedetector": "8.0.0",
     "i18next-http-backend": "2.5.2",
     "immer": "9.0.16",
