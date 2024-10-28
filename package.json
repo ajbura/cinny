@@ -25,7 +25,7 @@
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "1.0.3",
     "@fontsource/inter": "4.5.14",
     "@matrix-org/olm": "3.2.15",
-    "@tanstack/react-query": "5.24.1",
+    "@tanstack/react-query": "5.59.16",
     "@tanstack/react-query-devtools": "5.24.1",
     "@tanstack/react-virtual": "3.2.0",
     "@tippyjs/react": "4.2.6",
