@@ -6,6 +6,8 @@ import * as roomActions from '../../client/action/room';
 import { useRoomNavigate } from './useRoomNavigate';
 
 export const SHRUG = '¯\\_(ツ)_/¯';
+export const TABLEFLIP = '(╯°□°)╯︵ ┻━┻';
+export const UNFLIP = '┬─┬ノ( º_ºノ)';
 
 export function parseUsersAndReason(payload: string): {
   users: string[];
@@ -48,6 +50,8 @@ export enum Command {
   MyRoomAvatar = 'myroomavatar',
   ConvertToDm = 'converttodm',
   ConvertToRoom = 'converttoroom',
+  TableFlip = 'tableflip',
+  UnFlip = 'unflip',
 }
 
 export type CommandContent = {
@@ -76,6 +80,16 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
       [Command.Shrug]: {
         name: Command.Shrug,
         description: 'Send ¯\\_(ツ)_/¯ as message',
+        exe: async () => undefined,
+      },
+      [Command.TableFlip]: {
+        name: Command.TableFlip,
+        description: `Send ${TABLEFLIP} as message`,
+        exe: async () => undefined,
+      },
+      [Command.UnFlip]: {
+        name: Command.UnFlip,
+        description: `Send ${UNFLIP} as message`,
         exe: async () => undefined,
       },
       [Command.StartDm]: {

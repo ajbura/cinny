@@ -103,7 +103,7 @@ import {
 } from '../../utils/room';
 import { sanitizeText } from '../../utils/sanitize';
 import { CommandAutocomplete } from './CommandAutocomplete';
-import { Command, SHRUG, useCommands } from '../../hooks/useCommands';
+import { Command, SHRUG, TABLEFLIP, UNFLIP, useCommands } from '../../hooks/useCommands';
 import { mobileOrTablet } from '../../utils/user-agent';
 import { useElementSizeObserver } from '../../hooks/useElementSizeObserver';
 import { ReplyLayout, ThreadIndicator } from '../../components/message';
@@ -270,6 +270,12 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
       } else if (commandName === Command.Shrug) {
         plainText = `${SHRUG} ${plainText}`;
         customHtml = `${SHRUG} ${customHtml}`;
+      } else if (commandName === Command.TableFlip) {
+        plainText = `${TABLEFLIP} ${plainText}`;
+        customHtml = `${TABLEFLIP} ${customHtml}`;
+      } else if (commandName === Command.UnFlip) {
+        plainText = `${UNFLIP} ${plainText}`;
+        customHtml = `${UNFLIP} ${customHtml}`;
       } else if (commandName) {
         const commandContent = commands[commandName as Command];
         if (commandContent) {
