@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { openReusableContextMenu } from '../../../client/action/navigation';
 import { getEventCords } from '../../../util/common';
@@ -55,12 +55,13 @@ function useGlobalNotif() {
   const mx = useMatrixClient();
   const pushRules = useAccountData('m.push_rules')?.getContent();
   const underride = pushRules?.global?.underride ?? [];
-  const rulesToType = {
+
+  const [rulesToType, setRulesToType] = useState({
     [DM]: notifType.ON,
     [ENC_DM]: notifType.ON,
     [ROOM]: notifType.NOISY,
     [ENC_ROOM]: notifType.NOISY,
-  };
+  });
 
   const getRuleCondition = (rule) => {
     const condition = [];
@@ -75,10 +76,10 @@ function useGlobalNotif() {
     return condition;
   };
 
-  const setRule = (rule, type) => {
+  const setRule = async (rule, type) => {
     const content = pushRules ?? {};
-    if (!content.global) content.global = {};
-    if (!content.global.underride) content.global.underride = [];
+    content.global = content.global ?? {};
+    content.global.underride = content.global.underride ?? [];
     const ur = content.global.underride;
     let ruleContent = ur.find((action) => action?.rule_id === rule);
     if (!ruleContent) {
@@ -93,18 +94,33 @@ function useGlobalNotif() {
     }
     ruleContent.actions = getTypeActions(type);
 
-    mx.setAccountData('m.push_rules', content);
+    setRulesToType((prevRules) => ({
+      ...prevRules,
+      [rule]: type,
+    }));
+
+    await mx.setAccountData('mx.push_rules', content);
   };
 
-  const dmRule = underride.find((rule) => rule.rule_id === DM);
-  const encDmRule = underride.find((rule) => rule.rule_id === ENC_DM);
-  const roomRule = underride.find((rule) => rule.rule_id === ROOM);
-  const encRoomRule = underride.find((rule) => rule.rule_id === ENC_ROOM);
+  const updateRulesToType = () => {
+    const updatedRules = { ...rulesToType };
 
-  if (dmRule) rulesToType[DM] = getActionType(dmRule);
-  if (encDmRule) rulesToType[ENC_DM] = getActionType(encDmRule);
-  if (roomRule) rulesToType[ROOM] = getActionType(roomRule);
-  if (encRoomRule) rulesToType[ENC_ROOM] = getActionType(encRoomRule);
+    const dmRule = underride.find((rule) => rule.rule_id === DM);
+    const encDmRule = underride.find((rule) => rule.rule_id === ENC_DM);
+    const roomRule = underride.find((rule) => rule.rule_id === ROOM);
+    const encRoomRule = underride.find((rule) => rule.rule_id === ENC_ROOM);
+
+    if (dmRule) updatedRules[DM] = getActionType(dmRule);
+    if (encDmRule) updatedRules[ENC_DM] = getActionType(encDmRule);
+    if (roomRule) updatedRules[ROOM] = getActionType(roomRule);
+    if (encRoomRule) updatedRules[ENC_ROOM] = getActionType(encRoomRule);
+
+    setRulesToType(updatedRules);
+  };
+
+  React.useEffect(() => {
+    updateRulesToType();
+  }, [underride]);
 
   return [rulesToType, setRule];
 }
@@ -113,19 +129,15 @@ function GlobalNotification() {
   const [rulesToType, setRule] = useGlobalNotif();
 
   const onSelect = (evt, rule) => {
-    openReusableContextMenu(
-      'bottom',
-      getEventCords(evt, '.btn-surface'),
-      (requestClose) => (
-        <NotificationSelector
-          value={rulesToType[rule]}
-          onSelect={(value) => {
-            if (rulesToType[rule] !== value) setRule(rule, value);
-            requestClose();
-          }}
-        />
-      ),
-    );
+    openReusableContextMenu('bottom', getEventCords(evt, '.btn-surface'), (requestClose) => (
+      <NotificationSelector
+        value={rulesToType[rule]}
+        onSelect={(value) => {
+          if (rulesToType[rule] !== value) setRule(rule, value);
+          requestClose();
+        }}
+      />
+    ));
   };
 
   return (
@@ -133,39 +145,43 @@ function GlobalNotification() {
       <MenuHeader>Global Notifications</MenuHeader>
       <SettingTile
         title="Direct messages"
-        options={(
+        options={
           <Button onClick={(evt) => onSelect(evt, DM)} iconSrc={ChevronBottomIC}>
-            { typeToLabel[rulesToType[DM]] }
+            {typeToLabel[rulesToType[DM]]}
           </Button>
-        )}
+        }
         content={<Text variant="b3">Default notification settings for all direct message.</Text>}
       />
       <SettingTile
         title="Encrypted direct messages"
-        options={(
+        options={
           <Button onClick={(evt) => onSelect(evt, ENC_DM)} iconSrc={ChevronBottomIC}>
             {typeToLabel[rulesToType[ENC_DM]]}
           </Button>
-        )}
-        content={<Text variant="b3">Default notification settings for all encrypted direct message.</Text>}
+        }
+        content={
+          <Text variant="b3">Default notification settings for all encrypted direct message.</Text>
+        }
       />
       <SettingTile
         title="Rooms messages"
-        options={(
+        options={
           <Button onClick={(evt) => onSelect(evt, ROOM)} iconSrc={ChevronBottomIC}>
             {typeToLabel[rulesToType[ROOM]]}
           </Button>
-        )}
+        }
         content={<Text variant="b3">Default notification settings for all room message.</Text>}
       />
       <SettingTile
         title="Encrypted rooms messages"
-        options={(
+        options={
           <Button onClick={(evt) => onSelect(evt, ENC_ROOM)} iconSrc={ChevronBottomIC}>
             {typeToLabel[rulesToType[ENC_ROOM]]}
           </Button>
-        )}
-        content={<Text variant="b3">Default notification settings for all encrypted room message.</Text>}
+        }
+        content={
+          <Text variant="b3">Default notification settings for all encrypted room message.</Text>
+        }
       />
     </div>
   );
