@@ -70,3 +70,11 @@ export const EditorToolbar = style({
 export const MarkdownBtnBox = style({
   paddingRight: config.space.S100,
 });
+
+export const invertOnPress = style({
+  selectors: {
+    '&[aria-pressed="true"]': {
+      filter: 'invert(1)',
+    },
+  },
+});
