@@ -72,6 +72,7 @@ export function MarkButton({ format, icon, tooltip }: MarkButtonProps) {
     <TooltipProvider tooltip={tooltip} delay={500}>
       {(triggerRef) => (
         <IconButton
+          className={css.invertOnPress}
           ref={triggerRef}
           variant="SurfaceVariant"
           onClick={handleClick}
@@ -104,6 +105,7 @@ export function BlockButton({ format, icon, tooltip }: BlockButtonProps) {
     <TooltipProvider tooltip={tooltip} delay={500}>
       {(triggerRef) => (
         <IconButton
+          className={css.invertOnPress}
           ref={triggerRef}
           variant="SurfaceVariant"
           onClick={handleClick}
@@ -342,6 +344,7 @@ export function Toolbar() {
             >
               {(triggerRef) => (
                 <IconButton
+                  className={css.invertOnPress}
                   ref={triggerRef}
                   variant="SurfaceVariant"
                   onClick={() => setIsMarkdown(!isMarkdown)}
