@@ -6,10 +6,10 @@ export const targetFromEvent = (evt: Event, selector: string): Element | undefin
 export const editableActiveElement = (): boolean =>
   !!document.activeElement &&
   (document.activeElement.nodeName.toLowerCase() === 'input' ||
-    document.activeElement.nodeName.toLowerCase() === 'textbox' ||
+    document.activeElement.nodeName.toLowerCase() === 'textarea' ||
     document.activeElement.getAttribute('contenteditable') === 'true' ||
     document.activeElement.getAttribute('role') === 'input' ||
-    document.activeElement.getAttribute('role') === 'textbox');
+    document.activeElement.getAttribute('role') === 'textarea');
 
 export const isIntersectingScrollView = (
   scrollElement: HTMLElement,
