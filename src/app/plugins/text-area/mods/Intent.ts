@@ -71,11 +71,21 @@ export class Intent {
     return new Cursor(start, end, cursor.direction);
   }
 
-  public addNextLine(cursor: Cursor): Cursor {
+  public addNewLine(cursor: Cursor): Cursor {
     const lineIntent = this.lineIntent(cursor);
     const line = `\n${lineIntent}`;
 
     const insertCursor = this.operations.insert(cursor, line);
+    return new Cursor(insertCursor.end, insertCursor.end, 'none');
+  }
+
+  public addNextLine(cursor: Cursor): Cursor {
+    const lineIntent = this.lineIntent(cursor);
+    const line = `\n${lineIntent}`;
+
+    const currentLine = this.textArea.cursorLines(cursor);
+    const lineCursor = new Cursor(currentLine.end, currentLine.end, 'none');
+    const insertCursor = this.operations.insert(lineCursor, line);
     return new Cursor(insertCursor.end, insertCursor.end, 'none');
   }
 
