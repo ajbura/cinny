@@ -38,6 +38,11 @@ export const useTextAreaIntentHandler = (
       if (isKeyHotkey('enter', evt) || isKeyHotkey('shift+enter', evt)) {
         evt.preventDefault();
         const cursor = Cursor.fromTextAreaElement(target);
+        operations.select(intent.addNewLine(cursor));
+      }
+      if (isKeyHotkey('mod+enter', evt)) {
+        evt.preventDefault();
+        const cursor = Cursor.fromTextAreaElement(target);
         operations.select(intent.addNextLine(cursor));
       }
       if (isKeyHotkey('mod+shift+enter', evt)) {
