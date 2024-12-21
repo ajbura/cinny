@@ -43,7 +43,7 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
   const [isValidAddress, setIsValidAddress] = useState(null);
   const [addressValue, setAddressValue] = useState(undefined);
   const [roleIndex, setRoleIndex] = useState(0);
-
+  const [nameError, setNameError] = useState(null);
   const addressRef = useRef(null);
 
   const mx = useMatrixClient();
@@ -120,6 +120,15 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
       }
     }, 1000);
   };
+
+  const validateRoomName =(value) =>{
+    if(value.length > 50){
+      setNameError('Room name should be less than 50 characters');
+      return false;
+    }
+    setNameError(null);
+    return true;
+  }
 
   const joinRules = ['invite', 'restricted', 'public'];
   const joinRuleShortText = ['Private', 'Restricted', 'Public'];
@@ -219,17 +228,26 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
           }
         />
         <Input name="topic" minHeight={174} resizable label="Topic (optional)" />
-        <div className="create-room__name-wrapper">
-          <Input name="name" label={`${isSpace ? 'Space' : 'Room'} name`} required />
-          <Button
-            disabled={isValidAddress === false || isCreatingRoom}
+        <div className='create-room__name-wrapper'>
+          <div className="create-room__name-error-wrapper">
+            <Input  name="name" label={`${isSpace ? 'Space' : 'Room'} name`} required error={nameError}  state={nameError !== null ? 'error' : 'normal'} onChange={(e) => validateRoomName(e.target.value)} maxLength={50} />
+            <Button
+            disabled={isValidAddress === false || isCreatingRoom || nameError!==null}
             iconSrc={isSpace ? SpacePlusIC : HashPlusIC}
             type="submit"
             variant="primary"
           >
             Create
           </Button>
-        </div>
+         </div>
+          {nameError !== null && (
+              <Text className="create-room__name-wrapper__tip" variant="b3">
+                <span
+                  style={{ color: 'var(--bg-danger)' }}
+                >{nameError}</span>
+              </Text>
+            )}
+            </div>
         {isCreatingRoom && (
           <div className="create-room__loading">
             <Spinner size="small" />

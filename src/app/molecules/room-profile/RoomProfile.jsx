@@ -184,21 +184,39 @@ function RoomProfile({ roomId }) {
   const renderNameAndTopic = () => (
     <div
       className="room-profile__display"
-      style={{ marginBottom: avatarSrc && canChangeAvatar ? '24px' : '0' }}
+      style={{ marginBottom: avatarSrc && canChangeAvatar ? '24px' : '0',width:"100%",maxWidth:"90%"}}
     >
-      <div>
-        <Text variant="h2" weight="medium" primary>
-          {roomName}
-        </Text>
-        {(canChangeName || canChangeTopic) && (
-          <IconButton
-            src={PencilIC}
-            size="extra-small"
-            tooltip="Edit"
-            onClick={() => setIsEditing(true)}
-          />
-        )}
-      </div>
+  <div
+    style={{
+      wordWrap: "break-word", 
+      width: "100%",
+      display: "flex", 
+      flexDirection: "column", 
+      alignItems: "flex-start", 
+    }}
+  >
+    <Text
+      style={{
+        width: "100%", 
+        whiteSpace: "normal", 
+        wordBreak: "break-word", 
+      }}
+      variant="h2"
+      weight="medium"
+      primary
+    >
+      {roomName}
+    </Text>
+    {(canChangeName || canChangeTopic) && (
+      <IconButton
+        src={PencilIC}
+        size="extra-small"
+        tooltip="Edit"
+        onClick={() => setIsEditing(true)}
+        style={{ marginTop: "8px" }} 
+      />
+    )}
+  </div>
       <Text variant="b3">{room.getCanonicalAlias() || room.roomId}</Text>
       {roomTopic && (
         <Text variant="b2">

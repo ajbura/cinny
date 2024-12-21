@@ -64,7 +64,7 @@
 
   &__name-wrapper {
     display: flex;
-    align-items: flex-end;
+    flex-direction: column;
 
     & .input-container {
       flex: 1;
@@ -73,8 +73,19 @@
     }
     & .btn-primary {
       padding-top: 11px;
+      align-self: last baseline;
       padding-bottom: 11px;
     }
+    &__tip {
+      margin-top: var(--sp-ultra-tight);
+      @include dir.side(margin, 26px, 0);
+    }
+  }
+
+  &__name-error-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
   }
 
   &__loading {
