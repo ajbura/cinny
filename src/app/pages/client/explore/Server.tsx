@@ -45,6 +45,7 @@ import { getMxIdServer } from '../../../utils/matrix';
 import { stopPropagation } from '../../../utils/keyboard';
 import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { BackRouteHandler } from '../../../components/BackRouteHandler';
+import { LimitWarning } from './LimitWarning';
 
 const useServerSearchParams = (searchParams: URLSearchParams): ExploreServerPathSearchParams =>
   useMemo(
@@ -260,6 +261,7 @@ function LimitButton({ limit, onLimitChange }: LimitButtonProps) {
     if (!limitInput) return;
     const newLimit = limitInput.value.trim();
     if (!newLimit) return;
+    // my work here
     onLimitChange(newLimit);
   };
 
@@ -301,7 +303,8 @@ function LimitButton({ limit, onLimitChange }: LimitButtonProps) {
                   </Chip>
                 </Box>
               </Box>
-              <Box as="form" onSubmit={handleLimitSubmit} direction="Column" gap="300">
+              <LimitWarning limit={limit} onLimitChange={setLimit} setMenuAnchor={setMenuAnchor} />
+              {/* <Box as="form" onSubmit={handleLimitSubmit} direction="Column" gap="300">
                 <Box direction="Column" gap="100">
                   <Text size="L400">Custom Limit</Text>
                   <Input
@@ -320,7 +323,7 @@ function LimitButton({ limit, onLimitChange }: LimitButtonProps) {
                 <Button type="submit" size="300" variant="Primary" radii="400">
                   <Text size="B300">Change Limit</Text>
                 </Button>
-              </Box>
+              </Box> */}
             </Box>
           </Menu>
         </FocusTrap>
