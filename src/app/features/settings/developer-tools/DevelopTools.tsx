@@ -13,6 +13,11 @@ import {
   Modal,
   Chip,
   Button,
+  PopOut,
+  RectCords,
+  Menu,
+  config,
+  MenuItem,
 } from 'folds';
 import { MatrixEvent } from 'matrix-js-sdk';
 import FocusTrap from 'focus-trap-react';
@@ -26,12 +31,15 @@ import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { useAccountDataCallback } from '../../../hooks/useAccountDataCallback';
 import { TextViewer } from '../../../components/text-viewer';
 import { stopPropagation } from '../../../utils/keyboard';
+import { AccountDataEditor } from './AccountDataEditor';
 
 function AccountData() {
   const mx = useMatrixClient();
   const [view, setView] = useState(false);
   const [accountData, setAccountData] = useState(() => Array.from(mx.store.accountData.values()));
   const [selectedEvent, selectEvent] = useState<MatrixEvent>();
+  const [menuCords, setMenuCords] = useState<RectCords>();
+  const [selectedOption, selectOption] = useState<'edit' | 'inspect'>();
 
   useAccountDataCallback(
     mx,
@@ -41,16 +49,30 @@ function AccountData() {
     )
   );
 
-  const handleView: MouseEventHandler<HTMLButtonElement> = (evt) => {
+  const handleMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
     const target = evt.currentTarget;
     const eventType = target.getAttribute('data-event-type');
     if (eventType) {
       const mEvent = accountData.find((mEvt) => mEvt.getType() === eventType);
+      setMenuCords(evt.currentTarget.getBoundingClientRect());
       selectEvent(mEvent);
     }
   };
 
-  const handleClose = () => selectEvent(undefined);
+  const handleMenuClose = () => setMenuCords(undefined);
+
+  const handleEdit = () => {
+    selectOption('edit');
+    setMenuCords(undefined);
+  };
+  const handleInspect = () => {
+    selectOption('inspect');
+    setMenuCords(undefined);
+  };
+  const handleClose = useCallback(() => {
+    selectEvent(undefined);
+    selectOption(undefined);
+  }, []);
 
   return (
     <Box direction="Column" gap="100">
@@ -91,8 +113,8 @@ function AccountData() {
                     variant="Secondary"
                     fill="Soft"
                     radii="Pill"
-                    outlined
-                    onClick={handleView}
+                    aria-pressed={menuCords && selectedEvent?.getType() === mEvent.getType()}
+                    onClick={handleMenu}
                     data-event-type={mEvent.getType()}
                   >
                     <Text size="T200" truncate>
@@ -104,8 +126,38 @@ function AccountData() {
             </Box>
           </SettingTile>
         )}
+        <PopOut
+          anchor={menuCords}
+          offset={5}
+          position="Bottom"
+          content={
+            <FocusTrap
+              focusTrapOptions={{
+                initialFocus: false,
+                onDeactivate: handleMenuClose,
+                clickOutsideDeactivates: true,
+                isKeyForward: (evt: KeyboardEvent) =>
+                  evt.key === 'ArrowDown' || evt.key === 'ArrowRight',
+                isKeyBackward: (evt: KeyboardEvent) =>
+                  evt.key === 'ArrowUp' || evt.key === 'ArrowLeft',
+                escapeDeactivates: stopPropagation,
+              }}
+            >
+              <Menu>
+                <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+                  <MenuItem size="300" variant="Surface" radii="300" onClick={handleInspect}>
+                    <Text size="T300">Inspect</Text>
+                  </MenuItem>
+                  <MenuItem size="300" variant="Surface" radii="300" onClick={handleEdit}>
+                    <Text size="T300">Edit</Text>
+                  </MenuItem>
+                </Box>
+              </Menu>
+            </FocusTrap>
+          }
+        />
       </SequenceCard>
-      {selectedEvent && (
+      {selectedEvent && selectedOption === 'inspect' && (
         <Overlay open backdrop={<OverlayBackdrop />}>
           <OverlayCenter>
             <FocusTrap
@@ -121,6 +173,28 @@ function AccountData() {
                   name={selectedEvent.getType() ?? 'Source Code'}
                   langName="json"
                   text={JSON.stringify(selectedEvent.getContent(), null, 2)}
+                  requestClose={handleClose}
+                />
+              </Modal>
+            </FocusTrap>
+          </OverlayCenter>
+        </Overlay>
+      )}
+      {selectedEvent && selectedOption === 'edit' && (
+        <Overlay open backdrop={<OverlayBackdrop />}>
+          <OverlayCenter>
+            <FocusTrap
+              focusTrapOptions={{
+                initialFocus: false,
+                onDeactivate: handleClose,
+                clickOutsideDeactivates: true,
+                escapeDeactivates: stopPropagation,
+              }}
+            >
+              <Modal variant="Surface" size="500">
+                <AccountDataEditor
+                  type={selectedEvent.getType()}
+                  content={selectedEvent.getContent()}
                   requestClose={handleClose}
                 />
               </Modal>

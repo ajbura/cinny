@@ -159,8 +159,6 @@ export function KeywordMessagesNotifications() {
     );
   }, [pushRules]);
 
-  console.log(pushRules);
-
   return (
     <Box direction="Column" gap="100">
       <Box alignItems="Center" justifyContent="SpaceBetween" gap="200">
