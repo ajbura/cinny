@@ -92,10 +92,10 @@ export function LimitWarning({ limit, onLimitChange, setMenuAnchor }: LimitButto
                 gap="400"
               >
                 <Text priority="400">
-                  You are about to change the limit of items per page. Changing the limit higher
-                  than 9,999 may cause performance issues and may crash the app. It is recommended
-                  to keep the limit below 9,999 for the smooth functioning of the app. Are you sure
-                  you want to continue?
+                  You are about to change the limit of items. Changing the limit higher than 9,999
+                  may cause performance issues and may crash the app. It is recommended to keep the
+                  limit below 9,999 for the smooth functioning of the app. Are you sure you want to
+                  continue?
                 </Text>
                 <Box direction="Column" gap="200">
                   <Button
