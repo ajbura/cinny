@@ -107,6 +107,17 @@ function AccountData() {
             <Box direction="Column" gap="200">
               <Text size="L400">Types</Text>
               <Box gap="200" wrap="Wrap">
+                <Chip
+                  variant="Secondary"
+                  fill="Soft"
+                  radii="Pill"
+                  onClick={handleEdit}
+                  before={<Icon size="50" src={Icons.Plus} />}
+                >
+                  <Text size="T200" truncate>
+                    Add New
+                  </Text>
+                </Chip>
                 {accountData.map((mEvent) => (
                   <Chip
                     key={mEvent.getType()}
@@ -180,7 +191,7 @@ function AccountData() {
           </OverlayCenter>
         </Overlay>
       )}
-      {selectedEvent && selectedOption === 'edit' && (
+      {selectedOption === 'edit' && (
         <Overlay open backdrop={<OverlayBackdrop />}>
           <OverlayCenter>
             <FocusTrap
@@ -193,8 +204,8 @@ function AccountData() {
             >
               <Modal variant="Surface" size="500">
                 <AccountDataEditor
-                  type={selectedEvent.getType()}
-                  content={selectedEvent.getContent()}
+                  type={selectedEvent?.getType()}
+                  content={selectedEvent?.getContent()}
                   requestClose={handleClose}
                 />
               </Modal>
