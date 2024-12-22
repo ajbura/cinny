@@ -204,3 +204,13 @@ export const tryDecodeURIComponent = (encodedURIComponent: string): string => {
     return encodedURIComponent;
   }
 };
+
+export const syntaxErrorPosition = (error: SyntaxError): number | undefined => {
+  const match = error.message.match(/position\s(\d+)\s/);
+  if (!match) return undefined;
+
+  const posStr = match[1];
+  const position = parseInt(posStr, 10);
+  if (Number.isNaN(position)) return undefined;
+  return position;
+};
