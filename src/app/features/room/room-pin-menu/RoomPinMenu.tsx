@@ -1,6 +1,6 @@
 /* eslint-disable react/destructuring-assignment */
 import React, { forwardRef, MouseEventHandler, useCallback, useMemo, useRef } from 'react';
-import { MatrixEvent, RelationType, Room } from 'matrix-js-sdk';
+import { MatrixEvent, Room } from 'matrix-js-sdk';
 import { RoomPinnedEventsEventContent } from 'matrix-js-sdk/lib/types';
 import {
   Avatar,
@@ -257,6 +257,7 @@ export const RoomPinMenu = forwardRef<HTMLDivElement, RoomPinMenuProps>(
               msgType={event.getContent().msgtype ?? ''}
               ts={event.getTs()}
               getContent={getContent}
+              edited={!!event.replacingEvent}
               mediaAutoLoad={mediaAutoLoad}
               urlPreview={urlPreview}
               htmlReactParserOptions={htmlReactParserOptions}
@@ -311,7 +312,7 @@ export const RoomPinMenu = forwardRef<HTMLDivElement, RoomPinMenuProps>(
                       displayName={displayName}
                       msgType={mEvent.getContent().msgtype ?? ''}
                       ts={mEvent.getTs()}
-                      edited={!!editedEvent}
+                      edited={!!editedEvent || !!mEvent.replacingEvent}
                       getContent={getContent}
                       mediaAutoLoad={mediaAutoLoad}
                       urlPreview={urlPreview}
