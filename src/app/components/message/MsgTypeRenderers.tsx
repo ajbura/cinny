@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState, useMemo, useCallback } from 'react';
 import { Box, Chip, Icon, Icons, Text, toRem } from 'folds';
 import { IContent } from 'matrix-js-sdk';
 import { JUMBO_EMOJI_REG, URL_REG } from '../../utils/regex';
@@ -27,6 +27,9 @@ import { FALLBACK_MIMETYPE, getBlobSafeMimeType } from '../../utils/mimeTypes';
 import { parseGeoUri, scaleYDimension } from '../../utils/common';
 import { Attachment, AttachmentBox, AttachmentContent, AttachmentHeader } from './attachment';
 import { FileHeader } from './FileHeader';
+import { Button } from 'folds';
+
+const CHARACTER_LIMIT = 750;
 
 export function MBadEncrypted() {
   return (
@@ -63,6 +66,11 @@ export function BrokenContent() {
   );
 }
 
+const truncateText = (text: string, limit: number) => {
+  if (text.length <= limit) return text;
+  return `${text.slice(0, limit).trim()}...`;
+};
+
 type RenderBodyProps = {
   body: string;
   customBody?: string;
@@ -80,6 +88,22 @@ export function MText({ edited, content, renderBody, renderUrlsPreview }: MTextP
   const trimmedBody = trimReplyFromBody(body);
   const urlsMatch = renderUrlsPreview && trimmedBody.match(URL_REG);
   const urls = urlsMatch ? [...new Set(urlsMatch)] : undefined;
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const { shouldTruncate, finalContent, finalCustomContent } = useMemo(() => {
+    const contentStr = trimmedBody || '';
+    const customContentStr = typeof customBody === 'string' ? trimReplyFromBody(customBody) : '';
+    const needTruncate = contentStr.length > 750 || customContentStr.length > 750;
+    return {
+      contentStr,
+      customContentStr,
+      shouldTruncate: needTruncate,
+      finalContent: isExpanded ? contentStr : truncateText(contentStr, CHARACTER_LIMIT),
+      finalCustomContent: isExpanded
+        ? customContentStr
+        : truncateText(customContentStr, CHARACTER_LIMIT),
+    };
+  }, [trimmedBody, customBody, isExpanded]);
 
   return (
     <>
@@ -88,12 +112,22 @@ export function MText({ edited, content, renderBody, renderUrlsPreview }: MTextP
         jumboEmoji={JUMBO_EMOJI_REG.test(trimmedBody)}
       >
         {renderBody({
-          body: trimmedBody,
-          customBody: typeof customBody === 'string' ? customBody : undefined,
+          body: finalContent,
+          customBody: typeof customBody === 'string' ? finalCustomContent : undefined,
         })}
         {edited && <MessageEditedContent />}
       </MessageTextBody>
       {renderUrlsPreview && urls && urls.length > 0 && renderUrlsPreview(urls)}
+
+      {shouldTruncate && (
+        <button
+          aria-expanded={isExpanded}
+          className="show-more"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          {isExpanded ? 'Show Less' : 'Show More'}
+        </button>
+      )}
     </>
   );
 }
