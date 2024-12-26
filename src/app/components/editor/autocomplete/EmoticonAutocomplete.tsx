@@ -52,7 +52,7 @@ export function EmoticonAutocomplete({
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
 
-  const imagePacks = useRelevantImagePacks(mx, ImageUsage.Emoticon, imagePackRooms);
+  const imagePacks = useRelevantImagePacks(ImageUsage.Emoticon, imagePackRooms);
   const recentEmoji = useRecentEmoji(mx, 20);
 
   const searchList = useMemo(() => {

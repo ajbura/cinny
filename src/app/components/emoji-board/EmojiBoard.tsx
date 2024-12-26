@@ -674,7 +674,7 @@ export function EmojiBoard({
   const useAuthentication = useMediaAuthentication();
   const emojiGroupLabels = useEmojiGroupLabels();
   const emojiGroupIcons = useEmojiGroupIcons();
-  const imagePacks = useRelevantImagePacks(mx, usage, imagePackRooms);
+  const imagePacks = useRelevantImagePacks(usage, imagePackRooms);
   const recentEmojis = useRecentEmoji(mx, 21);
 
   const contentScrollRef = useRef<HTMLDivElement>(null);

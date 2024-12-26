@@ -57,21 +57,3 @@ export function getUserImagePack(mx: MatrixClient): ImagePack | undefined {
   const userImagePack = ImagePack.fromMatrixEvent(userId, packEvent);
   return userImagePack;
 }
-
-/**
- * @param {MatrixClient} mx Provide if you want to include user personal/global pack
- * @param {Room[]} rooms Provide rooms if you want to include rooms pack
- * @returns {ImagePack[]} packs
- */
-export function getRelevantPacks(mx?: MatrixClient, rooms?: Room[]): ImagePack[] {
-  const userPack = mx && getUserImagePack(mx);
-  const userPacks = userPack ? [userPack] : [];
-  const globalPacks = mx ? getGlobalImagePacks(mx) : [];
-  const globalPackIds = new Set(globalPacks.map((pack) => pack.id));
-  const roomsPack = rooms?.flatMap(getRoomImagePacks) ?? [];
-
-  return userPacks.concat(
-    globalPacks,
-    roomsPack.filter((pack) => !globalPackIds.has(pack.id))
-  );
-}
