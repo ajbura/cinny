@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useMemo, useCallback } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { Box, Chip, Icon, Icons, Text, toRem } from 'folds';
 import { IContent } from 'matrix-js-sdk';
 import { JUMBO_EMOJI_REG, URL_REG } from '../../utils/regex';
@@ -28,6 +28,8 @@ import { parseGeoUri, scaleYDimension } from '../../utils/common';
 import { Attachment, AttachmentBox, AttachmentContent, AttachmentHeader } from './attachment';
 import { FileHeader } from './FileHeader';
 import { Button } from 'folds';
+import { buttonStyle } from './MsgTypeRenderers.css';
+import truncateHtml from 'truncate-html';
 
 const CHARACTER_LIMIT = 750;
 
@@ -90,20 +92,12 @@ export function MText({ edited, content, renderBody, renderUrlsPreview }: MTextP
   const urls = urlsMatch ? [...new Set(urlsMatch)] : undefined;
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const { shouldTruncate, finalContent, finalCustomContent } = useMemo(() => {
-    const contentStr = trimmedBody || '';
-    const customContentStr = typeof customBody === 'string' ? trimReplyFromBody(customBody) : '';
-    const needTruncate = contentStr.length > 750 || customContentStr.length > 750;
-    return {
-      contentStr,
-      customContentStr,
-      shouldTruncate: needTruncate,
-      finalContent: isExpanded ? contentStr : truncateText(contentStr, CHARACTER_LIMIT),
-      finalCustomContent: isExpanded
-        ? customContentStr
-        : truncateText(customContentStr, CHARACTER_LIMIT),
-    };
-  }, [trimmedBody, customBody, isExpanded]);
+  const shouldTruncate =
+    trimmedBody.length > 750 || (typeof customBody === 'string' && customBody.length > 750);
+  const finalContent = isExpanded ? trimmedBody : truncateText(trimmedBody, CHARACTER_LIMIT);
+  const customFinalContent = isExpanded
+    ? (customBody as string)
+    : truncateHtml(customBody as string, CHARACTER_LIMIT);
 
   return (
     <>
@@ -113,20 +107,22 @@ export function MText({ edited, content, renderBody, renderUrlsPreview }: MTextP
       >
         {renderBody({
           body: finalContent,
-          customBody: typeof customBody === 'string' ? finalCustomContent : undefined,
+          customBody: typeof customBody === 'string' ? customFinalContent : undefined,
         })}
         {edited && <MessageEditedContent />}
       </MessageTextBody>
       {renderUrlsPreview && urls && urls.length > 0 && renderUrlsPreview(urls)}
 
       {shouldTruncate && (
-        <button
-          aria-expanded={isExpanded}
-          className="show-more"
+        <Button
+          size="400"
+          fill="None"
+          radii="0"
+          className={buttonStyle}
           onClick={() => setIsExpanded(!isExpanded)}
         >
           {isExpanded ? 'Show Less' : 'Show More'}
-        </button>
+        </Button>
       )}
     </>
   );
