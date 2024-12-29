@@ -112,7 +112,7 @@ function PinnedMessage({ room, eventId, renderContent, onOpen, canPinEvent }: Pi
   const renderOptions = () => (
     <Box shrink="No" gap="200" alignItems="Center">
       <Chip data-event-id={eventId} onClick={handleOpenClick} variant="Secondary" radii="Pill">
-        <Text size="T200">go to message</Text>
+        <Text size="T200">Go to</Text>
       </Chip>
       {canPinEvent && (
         <IconButton
