@@ -17,17 +17,20 @@ import { SettingTile } from '../../../components/setting-tile';
 import { mxcUrlToHttp } from '../../../utils/matrix';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
-import { ImageUsage } from '../../../plugins/custom-emoji';
+import { ImagePack, ImageUsage } from '../../../plugins/custom-emoji';
 import { LineClamp2 } from '../../../styles/Text.css';
 
-export function GlobalPacks() {
+type GlobalPacksProps = {
+  onViewPack: (imagePack: ImagePack) => void;
+};
+export function GlobalPacks({ onViewPack }: GlobalPacksProps) {
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
   const globalPacks = useGlobalImagePacks();
 
   return (
     <Box direction="Column" gap="100">
-      <Text size="L400">Globally Accessible</Text>
+      <Text size="L400">Favorite Packs</Text>
       <SequenceCard
         className={SequenceCardStyle}
         variant="SurfaceVariant"
@@ -36,7 +39,7 @@ export function GlobalPacks() {
       >
         <SettingTile
           title="Select Pack"
-          description="Pick emojis and stickers pack to use in all rooms."
+          description="Pick emojis and stickers pack from rooms to use in all rooms."
           after={
             <Button variant="Secondary" fill="Soft" size="300" radii="300" outlined>
               <Text size="B300">Select</Text>
@@ -50,6 +53,7 @@ export function GlobalPacks() {
 
         return (
           <SequenceCard
+            key={pack.id}
             className={SequenceCardStyle}
             variant="SurfaceVariant"
             direction="Column"
@@ -75,7 +79,14 @@ export function GlobalPacks() {
                 </Box>
               }
               after={
-                <Button variant="Secondary" fill="Soft" size="300" radii="300" outlined>
+                <Button
+                  variant="Secondary"
+                  fill="Soft"
+                  size="300"
+                  radii="300"
+                  outlined
+                  onClick={() => onViewPack(pack)}
+                >
                   <Text size="B300">View</Text>
                 </Button>
               }

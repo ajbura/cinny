@@ -1,13 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Text, IconButton, Icon, Icons, Scroll } from 'folds';
 import { Page, PageContent, PageHeader } from '../../../components/page';
 import { GlobalPacks } from './GlobalPacks';
 import { UserPack } from './UserPack';
+import { ImagePack } from '../../../plugins/custom-emoji';
+import { ImagePackView } from './ImagePackView';
 
 type EmojisStickersProps = {
   requestClose: () => void;
 };
 export function EmojisStickers({ requestClose }: EmojisStickersProps) {
+  const [imagePack, setImagePack] = useState<ImagePack>();
+
+  const handleImagePackViewClose = () => {
+    setImagePack(undefined);
+  };
+
+  if (imagePack) {
+    return <ImagePackView imagePack={imagePack} requestClose={handleImagePackViewClose} />;
+  }
+
   return (
     <Page>
       <PageHeader outlined={false}>
@@ -28,8 +40,8 @@ export function EmojisStickers({ requestClose }: EmojisStickersProps) {
         <Scroll hideTrack visibility="Hover">
           <PageContent>
             <Box direction="Column" gap="700">
-              <UserPack />
-              <GlobalPacks />
+              <UserPack onViewPack={setImagePack} />
+              <GlobalPacks onViewPack={setImagePack} />
             </Box>
           </PageContent>
         </Scroll>

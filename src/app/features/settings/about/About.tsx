@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Text, IconButton, Icon, Icons, Scroll, Button, config } from 'folds';
+import { Box, Text, IconButton, Icon, Icons, Scroll, Button, config, toRem } from 'folds';
 import { Page, PageContent, PageHeader } from '../../../components/page';
 import { SequenceCard } from '../../../components/sequence-card';
 import { SequenceCardStyle } from '../styles.css';
@@ -38,7 +38,11 @@ export function About({ requestClose }: AboutProps) {
             <Box direction="Column" gap="700">
               <Box gap="400">
                 <Box shrink="No">
-                  <img width="60" height="60" src={CinnySVG} alt="Cinny logo" />
+                  <img
+                    style={{ width: toRem(60), height: toRem(60) }}
+                    src={CinnySVG}
+                    alt="Cinny logo"
+                  />
                 </Box>
                 <Box direction="Column" gap="300">
                   <Box direction="Column" gap="100">
