@@ -1,14 +1,20 @@
 import React from 'react';
 import { Box, IconButton, Text, Icon, Icons, Scroll, Chip } from 'folds';
-import { ImagePack } from '../../../plugins/custom-emoji';
-import { Page, PageHeader, PageContent } from '../../../components/page';
-import { ImagePackViewer } from '../../../components/image-pack-viewer';
+import { ImagePack } from '../../plugins/custom-emoji';
+import { Page, PageHeader, PageContent } from '../page';
+import { useMatrixClient } from '../../hooks/useMatrixClient';
+import { RoomImagePack } from './RoomImagePack';
+import { UserImagePack } from './UserImagePack';
 
 type ImagePackViewProps = {
   imagePack: ImagePack;
   requestClose: () => void;
 };
 export function ImagePackView({ imagePack, requestClose }: ImagePackViewProps) {
+  const mx = useMatrixClient();
+  const { roomId } = imagePack.address ?? {};
+  const room = mx.getRoom(roomId);
+
   return (
     <Page>
       <PageHeader outlined={false} balance>
@@ -34,7 +40,11 @@ export function ImagePackView({ imagePack, requestClose }: ImagePackViewProps) {
         <Scroll hideTrack visibility="Hover">
           <PageContent>
             <Box direction="Column" gap="700">
-              <ImagePackViewer imagePack={imagePack} />
+              {room ? (
+                <RoomImagePack room={room} imagePack={imagePack} />
+              ) : (
+                <UserImagePack imagePack={imagePack} />
+              )}
             </Box>
           </PageContent>
         </Scroll>

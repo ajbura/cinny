@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { as, Box, Text, config, Avatar, AvatarImage, AvatarFallback, Button } from 'folds';
 import Linkify from 'linkify-react';
-import { ImagePack } from '../../plugins/custom-emoji';
+import { ImagePack, PackMetaReader } from '../../plugins/custom-emoji';
 import { mxcUrlToHttp } from '../../utils/matrix';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
@@ -12,34 +12,44 @@ import { LINKIFY_OPTS } from '../../plugins/react-custom-html-parser';
 import { ContainerColor } from '../../styles/ContainerColor.css';
 import { ImageTile } from './ImageTile';
 
-export type ImagePackViewerProps = {
+type ImagePackAvatarProps = {
+  meta: PackMetaReader;
+};
+function ImagePackAvatar({ meta }: ImagePackAvatarProps) {
+  const mx = useMatrixClient();
+  const useAuthentication = useMediaAuthentication();
+  const packAvatar = meta.avatar ? mxcUrlToHttp(mx, meta.avatar, useAuthentication) : undefined;
+
+  return (
+    <Avatar size="400" className={ContainerColor({ variant: 'Secondary' })}>
+      {packAvatar ? (
+        <AvatarImage src={packAvatar} alt={meta.name ?? 'Unknown'} />
+      ) : (
+        <AvatarFallback>
+          <Text size="H4">{nameInitials(meta.name ?? 'Unknown')}</Text>
+        </AvatarFallback>
+      )}
+    </Avatar>
+  );
+}
+
+export type ImagePackContentProps = {
   imagePack: ImagePack;
   canEdit?: boolean;
 };
 
-export const ImagePackViewer = as<'div', ImagePackViewerProps>(
+export const ImagePackContent = as<'div', ImagePackContentProps>(
   ({ imagePack, canEdit, ...props }, ref) => {
-    const mx = useMatrixClient();
     const useAuthentication = useMediaAuthentication();
 
     const { meta } = imagePack;
     const images = useMemo(() => Array.from(imagePack.images.collection.values()), [imagePack]);
 
-    const packAvatar = meta.avatar ? mxcUrlToHttp(mx, meta.avatar, useAuthentication) : undefined;
-
     return (
       <Box grow="Yes" direction="Column" gap="700" {...props} ref={ref}>
         <Box gap="400">
           <Box shrink="No">
-            <Avatar size="400" className={ContainerColor({ variant: 'Secondary' })}>
-              {packAvatar ? (
-                <AvatarImage src={packAvatar} alt={meta.name ?? 'Unknown'} />
-              ) : (
-                <AvatarFallback>
-                  <Text size="H4">{nameInitials(meta.name ?? 'Unknown')}</Text>
-                </AvatarFallback>
-              )}
-            </Avatar>
+            <ImagePackAvatar meta={meta} />
           </Box>
           <Box grow="Yes" direction="Column" gap="300">
             <Box direction="Column" gap="100">
