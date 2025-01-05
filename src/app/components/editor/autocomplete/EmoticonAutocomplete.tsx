@@ -64,7 +64,9 @@ export function EmoticonAutocomplete({
   }, [imagePacks]);
 
   const [result, search, resetSearch] = useAsyncSearch(searchList, getEmoticonStr, SEARCH_OPTIONS);
-  const autoCompleteEmoticon = result ? result.items : recentEmoji;
+  const autoCompleteEmoticon = (result ? result.items : recentEmoji).sort((a, b) =>
+    a.shortcode.localeCompare(b.shortcode)
+  );
 
   useEffect(() => {
     if (query.text) search(query.text);

@@ -471,34 +471,36 @@ export function SearchEmojiGroup({
   return (
     <EmojiGroup key={id} id={id} label={label}>
       {tab === EmojiBoardTab.Emoji
-        ? searchResult.map((emoji) =>
-            'unicode' in emoji ? (
-              <EmojiItem
-                key={emoji.unicode}
-                label={emoji.label}
-                type={EmojiType.Emoji}
-                data={emoji.unicode}
-                shortcode={emoji.shortcode}
-              >
-                {emoji.unicode}
-              </EmojiItem>
-            ) : (
-              <EmojiItem
-                key={emoji.shortcode}
-                label={emoji.body || emoji.shortcode}
-                type={EmojiType.CustomEmoji}
-                data={emoji.url}
-                shortcode={emoji.shortcode}
-              >
-                <img
-                  loading="lazy"
-                  className={css.CustomEmojiImg}
-                  alt={emoji.body || emoji.shortcode}
-                  src={mxcUrlToHttp(mx, emoji.url, useAuthentication) ?? emoji.url}
-                />
-              </EmojiItem>
+        ? searchResult
+            .sort((a, b) => a.shortcode.localeCompare(b.shortcode))
+            .map((emoji) =>
+              'unicode' in emoji ? (
+                <EmojiItem
+                  key={emoji.unicode}
+                  label={emoji.label}
+                  type={EmojiType.Emoji}
+                  data={emoji.unicode}
+                  shortcode={emoji.shortcode}
+                >
+                  {emoji.unicode}
+                </EmojiItem>
+              ) : (
+                <EmojiItem
+                  key={emoji.shortcode}
+                  label={emoji.body || emoji.shortcode}
+                  type={EmojiType.CustomEmoji}
+                  data={emoji.url}
+                  shortcode={emoji.shortcode}
+                >
+                  <img
+                    loading="lazy"
+                    className={css.CustomEmojiImg}
+                    alt={emoji.body || emoji.shortcode}
+                    src={mxcUrlToHttp(mx, emoji.url, useAuthentication) ?? emoji.url}
+                  />
+                </EmojiItem>
+              )
             )
-          )
         : searchResult.map((emoji) =>
             'unicode' in emoji ? null : (
               <StickerItem
@@ -534,22 +536,25 @@ export const CustomEmojiGroups = memo(
     <>
       {groups.map((pack) => (
         <EmojiGroup key={pack.id} id={pack.id} label={pack.meta.name || 'Unknown'}>
-          {pack.getImages(ImageUsage.Emoticon).map((image) => (
-            <EmojiItem
-              key={image.shortcode}
-              label={image.body || image.shortcode}
-              type={EmojiType.CustomEmoji}
-              data={image.url}
-              shortcode={image.shortcode}
-            >
-              <img
-                loading="lazy"
-                className={css.CustomEmojiImg}
-                alt={image.body || image.shortcode}
-                src={mxcUrlToHttp(mx, image.url, useAuthentication) ?? image.url}
-              />
-            </EmojiItem>
-          ))}
+          {pack
+            .getImages(ImageUsage.Emoticon)
+            .sort((a, b) => a.shortcode.localeCompare(b.shortcode))
+            .map((image) => (
+              <EmojiItem
+                key={image.shortcode}
+                label={image.body || image.shortcode}
+                type={EmojiType.CustomEmoji}
+                data={image.url}
+                shortcode={image.shortcode}
+              >
+                <img
+                  loading="lazy"
+                  className={css.CustomEmojiImg}
+                  alt={image.body || image.shortcode}
+                  src={mxcUrlToHttp(mx, image.url, useAuthentication) ?? image.url}
+                />
+              </EmojiItem>
+            ))}
         </EmojiGroup>
       ))}
     </>
@@ -586,22 +591,25 @@ export const StickerGroups = memo(
       )}
       {groups.map((pack) => (
         <EmojiGroup key={pack.id} id={pack.id} label={pack.meta.name || 'Unknown'}>
-          {pack.getImages(ImageUsage.Sticker).map((image) => (
-            <StickerItem
-              key={image.shortcode}
-              label={image.body || image.shortcode}
-              type={EmojiType.Sticker}
-              data={image.url}
-              shortcode={image.shortcode}
-            >
-              <img
-                loading="lazy"
-                className={css.StickerImg}
-                alt={image.body || image.shortcode}
-                src={mxcUrlToHttp(mx, image.url, useAuthentication) ?? image.url}
-              />
-            </StickerItem>
-          ))}
+          {pack
+            .getImages(ImageUsage.Sticker)
+            .sort((a, b) => a.shortcode.localeCompare(b.shortcode))
+            .map((image) => (
+              <StickerItem
+                key={image.shortcode}
+                label={image.body || image.shortcode}
+                type={EmojiType.Sticker}
+                data={image.url}
+                shortcode={image.shortcode}
+              >
+                <img
+                  loading="lazy"
+                  className={css.StickerImg}
+                  alt={image.body || image.shortcode}
+                  src={mxcUrlToHttp(mx, image.url, useAuthentication) ?? image.url}
+                />
+              </StickerItem>
+            ))}
         </EmojiGroup>
       ))}
     </>
