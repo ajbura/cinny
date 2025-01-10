@@ -58,6 +58,7 @@ type MarkButtonProps = { format: MarkType; icon: IconSrc; tooltip: ReactNode };
 export function MarkButton({ format, icon, tooltip }: MarkButtonProps) {
   const editor = useSlate();
   const disableInline = isBlockActive(editor, BlockType.CodeBlock);
+  const isActive = isMarkActive(editor, format);
 
   if (disableInline) {
     removeAllMark(editor);
@@ -75,12 +76,12 @@ export function MarkButton({ format, icon, tooltip }: MarkButtonProps) {
           ref={triggerRef}
           variant="SurfaceVariant"
           onClick={handleClick}
-          aria-pressed={isMarkActive(editor, format)}
+          aria-pressed={isActive}
           size="400"
           radii="300"
           disabled={disableInline}
         >
-          <Icon size="200" src={icon} />
+          <Icon size="200" src={icon} filled={isActive} />
         </IconButton>
       )}
     </TooltipProvider>
@@ -94,6 +95,7 @@ type BlockButtonProps = {
 };
 export function BlockButton({ format, icon, tooltip }: BlockButtonProps) {
   const editor = useSlate();
+  const isActive = isBlockActive(editor, format);
 
   const handleClick = () => {
     toggleBlock(editor, format, { level: 1 });
@@ -107,11 +109,11 @@ export function BlockButton({ format, icon, tooltip }: BlockButtonProps) {
           ref={triggerRef}
           variant="SurfaceVariant"
           onClick={handleClick}
-          aria-pressed={isBlockActive(editor, format)}
+          aria-pressed={isActive}
           size="400"
           radii="300"
         >
-          <Icon size="200" src={icon} />
+          <Icon size="200" src={icon} filled={isActive} />
         </IconButton>
       )}
     </TooltipProvider>
@@ -215,7 +217,11 @@ export function HeadingBlockButton() {
         size="400"
         radii="300"
       >
-        <Icon size="200" src={level ? Icons[`Heading${level}`] : Icons.Heading1} />
+        <Icon
+          size="200"
+          src={level ? Icons[`Heading${level}`] : Icons.Heading1}
+          filled={isActive}
+        />
         <Icon size="200" src={isActive ? Icons.Cross : Icons.ChevronBottom} />
       </IconButton>
     </PopOut>
