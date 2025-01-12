@@ -4,6 +4,17 @@ import { EmoteRoomsContent } from './types';
 import { StateEvent } from '../../../types/matrix/room';
 import { getAccountData, getStateEvents } from '../../utils/room';
 import { AccountDataEvent } from '../../../types/matrix/accountData';
+import { PackMetaReader } from './PackMetaReader';
+
+export function packMetaEqual(a: PackMetaReader, b: PackMetaReader): boolean {
+  return (
+    a.name === b.name &&
+    a.avatar === b.avatar &&
+    a.attribution === b.attribution &&
+    a.usage.length === b.usage.length &&
+    a.usage.every((u) => b.usage.includes(u))
+  );
+}
 
 export function makeImagePacks(packEvents: MatrixEvent[]): ImagePack[] {
   return packEvents.reduce<ImagePack[]>((imagePacks, packEvent) => {

@@ -39,13 +39,11 @@ export function ImagePackView({ imagePack, requestClose }: ImagePackViewProps) {
       <Box grow="Yes">
         <Scroll hideTrack visibility="Hover">
           <PageContent>
-            <Box direction="Column" gap="700">
-              {room ? (
-                <RoomImagePack room={room} imagePack={imagePack} />
-              ) : (
-                <UserImagePack imagePack={imagePack} />
-              )}
-            </Box>
+            {room ? (
+              <RoomImagePack room={room} imagePack={imagePack} />
+            ) : (
+              <UserImagePack imagePack={imagePack} />
+            )}
           </PageContent>
         </Scroll>
       </Box>

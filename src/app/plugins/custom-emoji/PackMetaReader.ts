@@ -38,4 +38,8 @@ export class PackMetaReader {
 
     return knownUsage;
   }
+
+  get content(): PackMeta {
+    return this.meta;
+  }
 }

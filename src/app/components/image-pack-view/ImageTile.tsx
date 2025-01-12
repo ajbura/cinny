@@ -1,8 +1,6 @@
-import React, { MouseEventHandler, useState } from 'react';
-import { Chip, Icon, Icons, Text, PopOut, Menu, RectCords } from 'folds';
-import FocusTrap from 'focus-trap-react';
-import { stopPropagation } from '../../utils/keyboard';
-import { UsageSelector, useUsageStr } from './UsageSelector';
+import React, { useCallback } from 'react';
+import { Badge, Box, Chip, Text } from 'folds';
+import { useUsageStr } from './UsageSwitcher';
 import { mxcUrlToHttp } from '../../utils/matrix';
 import * as css from './style.css';
 import { ImageUsage, PackImageReader } from '../../plugins/custom-emoji';
@@ -13,21 +11,15 @@ type ImageTileProps = {
   useAuthentication: boolean;
   packUsage: ImageUsage[];
   image: PackImageReader;
+  canEdit?: boolean;
 };
-export function ImageTile({ image, packUsage, useAuthentication }: ImageTileProps) {
+export function ImageTile({ image, packUsage, useAuthentication, canEdit }: ImageTileProps) {
   const mx = useMatrixClient();
   const getUsageStr = useUsageStr();
-  const usage = image.usage ?? packUsage;
 
-  const [menuCords, setMenuCords] = useState<RectCords>();
-
-  const handleChange = (usg: ImageUsage[]) => {
+  const handleChange = useCallback((usg: ImageUsage[]) => {
     console.log(usg);
-  };
-
-  const handleSelectUsage: MouseEventHandler<HTMLButtonElement> = (event) => {
-    setMenuCords(event.currentTarget.getBoundingClientRect());
-  };
+  }, []);
 
   return (
     <SettingTile
@@ -41,41 +33,22 @@ export function ImageTile({ image, packUsage, useAuthentication }: ImageTileProp
       title={image.shortcode}
       description={image.body}
       after={
-        <>
-          <Chip
-            variant="Secondary"
-            radii="Pill"
-            after={<Icon src={Icons.ChevronBottom} size="100" />}
-            onClick={handleSelectUsage}
-          >
-            <Text size="B300">{getUsageStr(usage)}</Text>
-          </Chip>
-          <PopOut
-            anchor={menuCords}
-            offset={5}
-            position="Bottom"
-            align="End"
-            content={
-              <FocusTrap
-                focusTrapOptions={{
-                  initialFocus: false,
-                  onDeactivate: () => setMenuCords(undefined),
-                  clickOutsideDeactivates: true,
-                  isKeyForward: (evt: KeyboardEvent) =>
-                    evt.key === 'ArrowDown' || evt.key === 'ArrowRight',
-                  isKeyBackward: (evt: KeyboardEvent) =>
-                    evt.key === 'ArrowUp' || evt.key === 'ArrowLeft',
-                  escapeDeactivates: stopPropagation,
-                }}
-              >
-                <Menu>
-                  <UsageSelector selected={usage} onChange={handleChange} />
-                </Menu>
-              </FocusTrap>
-            }
-          />
-        </>
+        canEdit ? (
+          <Box shrink="No" alignItems="Center" gap="200">
+            <Chip variant="Secondary" radii="Pill" outlined>
+              <Text size="B300">Edit</Text>
+            </Chip>
+          </Box>
+        ) : undefined
       }
-    />
+    >
+      {image.usage && getUsageStr(image.usage) !== getUsageStr(packUsage) && (
+        <Box>
+          <Badge variant="Secondary" size="400" radii="300" outlined>
+            <Text size="L400">{getUsageStr(image.usage)}</Text>
+          </Badge>
+        </Box>
+      )}
+    </SettingTile>
   );
 }
