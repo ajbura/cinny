@@ -1,4 +1,4 @@
-import { MatrixEvent, Room } from 'matrix-js-sdk';
+import { IEvent, MatrixEvent, Room } from 'matrix-js-sdk';
 import { useCallback, useMemo } from 'react';
 import to from 'await-to-js';
 import { CryptoBackend } from 'matrix-js-sdk/lib/common-crypto/CryptoBackend';
@@ -11,6 +11,12 @@ const useFetchEvent = (room: Room, eventId: string) => {
   const fetchEventCallback = useCallback(async () => {
     const evt = await mx.fetchRoomEvent(room.roomId, eventId);
     const mEvent = new MatrixEvent(evt);
+
+    if (evt.unsigned?.['m.relations'] && evt.unsigned?.['m.relations']['m.replace']) {
+      const replaceEvt = evt.unsigned?.['m.relations']['m.replace'] as IEvent;
+      const replaceEvent = new MatrixEvent(replaceEvt);
+      mEvent.makeReplaced(replaceEvent);
+    }
 
     if (mEvent.isEncrypted() && mx.getCrypto()) {
       await to(mEvent.attemptDecryption(mx.getCrypto() as CryptoBackend));
