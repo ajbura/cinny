@@ -300,8 +300,8 @@ export const ImagePackContent = as<'div', ImagePackContentProps>(
           <Menu className={css.UnsavedMenu} variant="Success">
             <Box alignItems="Center" gap="400">
               <Box grow="Yes" direction="Column">
-                <Text size="T300">
-                  <b>You have saved changes!</b>
+                <Text size="T200">
+                  <b>Changes saved! Apply when ready.</b>
                 </Text>
               </Box>
               <Box shrink="No" gap="200">
