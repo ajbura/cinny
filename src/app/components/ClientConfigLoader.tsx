@@ -4,9 +4,21 @@ import { ClientConfig } from '../hooks/useClientConfig';
 import { trimTrailingSlash } from '../utils/common';
 
 const getClientConfig = async (): Promise<ClientConfig> => {
-  const url = `${trimTrailingSlash(import.meta.env.BASE_URL)}/config.json`;
-  const config = await fetch(url, { method: 'GET' });
-  return config.json();
+  const defaultConfig = fetch(
+    `${trimTrailingSlash(import.meta.env.BASE_URL)}/config.json`, { method: 'GET' }
+  );
+  const perSiteConfig = fetch(
+    `${trimTrailingSlash(import.meta.env.BASE_URL)}/config.${window.location.hostname}.json`, { method: "GET" }
+  );
+
+  return perSiteConfig.then(
+    async (pscResponse) => {
+      if (import.meta.env.MODE === "development" || !pscResponse.ok) {
+        return defaultConfig.then((dcResponse) => dcResponse.json());
+      }
+      return pscResponse.json();
+    }
+  )
 };
 
 type ClientConfigLoaderProps = {
