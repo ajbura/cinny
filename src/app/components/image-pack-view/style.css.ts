@@ -1,5 +1,5 @@
 import { style } from '@vanilla-extract/css';
-import { config, DefaultReset, toRem } from 'folds';
+import { color, config, DefaultReset, toRem } from 'folds';
 
 export const ImagePackImage = style([
   DefaultReset,
@@ -7,6 +7,22 @@ export const ImagePackImage = style([
     width: toRem(36),
     height: toRem(36),
     objectFit: 'contain',
+  },
+]);
+
+export const DeleteImageShortcode = style([
+  DefaultReset,
+  {
+    color: color.Critical.Main,
+    textDecoration: 'line-through',
+  },
+]);
+
+export const ImagePackImageInputs = style([
+  DefaultReset,
+  {
+    overflow: 'hidden',
+    borderRadius: config.radii.R300,
   },
 ]);
 

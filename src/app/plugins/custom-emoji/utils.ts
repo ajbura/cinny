@@ -1,18 +1,21 @@
 import { MatrixClient, MatrixEvent, Room } from 'matrix-js-sdk';
 import { ImagePack } from './ImagePack';
-import { EmoteRoomsContent } from './types';
+import { EmoteRoomsContent, ImageUsage } from './types';
 import { StateEvent } from '../../../types/matrix/room';
 import { getAccountData, getStateEvents } from '../../utils/room';
 import { AccountDataEvent } from '../../../types/matrix/accountData';
 import { PackMetaReader } from './PackMetaReader';
+
+export function imageUsageEqual(u1: ImageUsage[], u2: ImageUsage[]) {
+  return u1.length === u2.length && u1.every((u) => u2.includes(u));
+}
 
 export function packMetaEqual(a: PackMetaReader, b: PackMetaReader): boolean {
   return (
     a.name === b.name &&
     a.avatar === b.avatar &&
     a.attribution === b.attribution &&
-    a.usage.length === b.usage.length &&
-    a.usage.every((u) => b.usage.includes(u))
+    imageUsageEqual(a.usage, b.usage)
   );
 }
 

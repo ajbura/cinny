@@ -9,7 +9,7 @@ export const useUsageStr = (): ((usage: ImageUsage[]) => string) => {
     const sticker = usage.includes(ImageUsage.Sticker);
     const emoticon = usage.includes(ImageUsage.Emoticon);
 
-    if (sticker && emoticon) return 'Emoji & Sticker';
+    if (sticker && emoticon) return 'Both';
     if (sticker) return 'Sticker';
     if (emoticon) return 'Emoji';
     return 'Both';
@@ -73,6 +73,7 @@ export function UsageSwitcher({ usage, onChange, canEdit }: UsageSwitcherProps) 
         fill="Soft"
         size="300"
         radii="300"
+        type="button"
         outlined
         aria-disabled={!canEdit}
         after={canEdit && <Icon src={Icons.ChevronBottom} size="100" />}
