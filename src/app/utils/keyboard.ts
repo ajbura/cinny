@@ -34,6 +34,15 @@ export const onEnterOrSpace =
   };
 
 export const stopPropagation = (evt: KeyboardEvent): boolean => {
+  const ae = document.activeElement;
+  const editableActiveElement = ae
+    ? ae.nodeName.toLowerCase() === 'input' ||
+      ae.nodeName.toLowerCase() === 'textarea' ||
+      ae.getAttribute('contenteditable') === 'true'
+    : false;
+
+  if (editableActiveElement) return false;
+
   evt.stopPropagation();
   return true;
 };

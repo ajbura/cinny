@@ -28,6 +28,7 @@ import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
 import { stopPropagation } from '../../../utils/keyboard';
 import { decryptFile, downloadEncryptedMedia, mxcUrlToHttp } from '../../../utils/matrix';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { ModalWide } from '../../../styles/Modal.css';
 
 type RenderViewerProps = {
   src: string;
@@ -121,7 +122,7 @@ export const ImageContent = as<'div', ImageContentProps>(
                 }}
               >
                 <Modal
-                  className={css.ModalWide}
+                  className={ModalWide}
                   size="500"
                   onContextMenu={(evt: any) => evt.stopPropagation()}
                 >

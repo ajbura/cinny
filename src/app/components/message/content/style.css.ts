@@ -30,8 +30,3 @@ export const AbsoluteFooter = style([
     right: config.space.S100,
   },
 ]);
-
-export const ModalWide = style({
-  minWidth: '85vw',
-  minHeight: '90vh',
-});

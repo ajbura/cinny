@@ -6,10 +6,10 @@ export const targetFromEvent = (evt: Event, selector: string): Element | undefin
 export const editableActiveElement = (): boolean =>
   !!document.activeElement &&
   (document.activeElement.nodeName.toLowerCase() === 'input' ||
-    document.activeElement.nodeName.toLowerCase() === 'textbox' ||
+    document.activeElement.nodeName.toLowerCase() === 'textarea' ||
     document.activeElement.getAttribute('contenteditable') === 'true' ||
     document.activeElement.getAttribute('role') === 'input' ||
-    document.activeElement.getAttribute('role') === 'textbox');
+    document.activeElement.getAttribute('role') === 'textarea');
 
 export const isIntersectingScrollView = (
   scrollElement: HTMLElement,
@@ -74,6 +74,9 @@ export const getDataTransferFiles = (dataTransfer: DataTransfer): File[] | undef
   if (files.length === 0) return undefined;
   return files;
 };
+
+export const renameFile = (file: File, name: string): File =>
+  new File([file], name, { type: file.type });
 
 export const getImageUrlBlob = async (url: string) => {
   const res = await fetch(url);
@@ -203,4 +206,14 @@ export const tryDecodeURIComponent = (encodedURIComponent: string): string => {
   } catch {
     return encodedURIComponent;
   }
+};
+
+export const syntaxErrorPosition = (error: SyntaxError): number | undefined => {
+  const match = error.message.match(/position\s(\d+)\s/);
+  if (!match) return undefined;
+
+  const posStr = match[1];
+  const position = parseInt(posStr, 10);
+  if (Number.isNaN(position)) return undefined;
+  return position;
 };

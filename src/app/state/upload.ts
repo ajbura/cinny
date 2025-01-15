@@ -99,11 +99,11 @@ export type TUploadAtom = ReturnType<typeof createUploadAtom>;
 
 export const useBindUploadAtom = (
   mx: MatrixClient,
-  file: TUploadContent,
   uploadAtom: TUploadAtom,
   hideFilename?: boolean
 ) => {
   const [upload, setUpload] = useAtom(uploadAtom);
+  const { file } = upload;
 
   const handleProgress = useThrottle(
     useCallback((progress: UploadProgress) => setUpload({ progress }), [setUpload]),

@@ -134,3 +134,8 @@ export const getFileNameExt = (fileName: string): string => {
   const extStart = fileName.lastIndexOf('.') + 1;
   return fileName.slice(extStart);
 };
+export const getFileNameWithoutExt = (fileName: string): string => {
+  const extStart = fileName.lastIndexOf('.');
+  if (extStart === 0 || extStart === -1) return fileName;
+  return fileName.slice(0, extStart);
+};

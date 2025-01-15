@@ -1,30 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Chip, Icon, IconButton, Icons, Text, color } from 'folds';
 import { UploadCard, UploadCardError, UploadCardProgress } from './UploadCard';
-import { TUploadAtom, UploadStatus, useBindUploadAtom } from '../../state/upload';
+import { TUploadAtom, UploadStatus, UploadSuccess, useBindUploadAtom } from '../../state/upload';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { TUploadContent } from '../../utils/matrix';
 import { getFileTypeIcon } from '../../utils/common';
 
 type UploadCardRendererProps = {
-  file: TUploadContent;
   isEncrypted?: boolean;
   uploadAtom: TUploadAtom;
   onRemove: (file: TUploadContent) => void;
+  onComplete?: (upload: UploadSuccess) => void;
 };
 export function UploadCardRenderer({
-  file,
   isEncrypted,
   uploadAtom,
   onRemove,
+  onComplete,
 }: UploadCardRendererProps) {
   const mx = useMatrixClient();
-  const { upload, startUpload, cancelUpload } = useBindUploadAtom(
-    mx,
-    file,
-    uploadAtom,
-    isEncrypted
-  );
+  const { upload, startUpload, cancelUpload } = useBindUploadAtom(mx, uploadAtom, isEncrypted);
+  const { file } = upload;
 
   if (upload.status === UploadStatus.Idle) startUpload();
 
@@ -32,6 +28,12 @@ export function UploadCardRenderer({
     cancelUpload();
     onRemove(file);
   };
+
+  useEffect(() => {
+    if (upload.status === UploadStatus.Success) {
+      onComplete?.(upload);
+    }
+  }, [upload, onComplete]);
 
   return (
     <UploadCard

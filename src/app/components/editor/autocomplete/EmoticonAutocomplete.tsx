@@ -16,14 +16,14 @@ import { createEmoticonElement, moveCursor, replaceWithElement } from '../utils'
 import { useRecentEmoji } from '../../../hooks/useRecentEmoji';
 import { useRelevantImagePacks } from '../../../hooks/useImagePacks';
 import { IEmoji, emojis } from '../../../plugins/emoji';
-import { ExtendedPackImage, PackUsage } from '../../../plugins/custom-emoji';
 import { useKeyDown } from '../../../hooks/useKeyDown';
 import { mxcUrlToHttp } from '../../../utils/matrix';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { ImageUsage, PackImageReader } from '../../../plugins/custom-emoji';
 
 type EmoticonCompleteHandler = (key: string, shortcode: string) => void;
 
-type EmoticonSearchItem = ExtendedPackImage | IEmoji;
+type EmoticonSearchItem = PackImageReader | IEmoji;
 
 type EmoticonAutocompleteProps = {
   imagePackRooms: Room[];
@@ -52,21 +52,21 @@ export function EmoticonAutocomplete({
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
 
-  const imagePacks = useRelevantImagePacks(mx, PackUsage.Emoticon, imagePackRooms);
+  const imagePacks = useRelevantImagePacks(ImageUsage.Emoticon, imagePackRooms);
   const recentEmoji = useRecentEmoji(mx, 20);
 
   const searchList = useMemo(() => {
     const list: Array<EmoticonSearchItem> = [];
-    return list
-      .concat(
-        imagePacks.flatMap((pack) => pack.getImagesFor(PackUsage.Emoticon)),
-        emojis
-      )
+    return list.concat(
+      imagePacks.flatMap((pack) => pack.getImages(ImageUsage.Emoticon)),
+      emojis
+    );
   }, [imagePacks]);
 
   const [result, search, resetSearch] = useAsyncSearch(searchList, getEmoticonStr, SEARCH_OPTIONS);
-  const autoCompleteEmoticon = (result ? result.items : recentEmoji)
-      .sort((a, b) => a.shortcode.localeCompare(b.shortcode));
+  const autoCompleteEmoticon = (result ? result.items : recentEmoji).sort((a, b) =>
+    a.shortcode.localeCompare(b.shortcode)
+  );
 
   useEffect(() => {
     if (query.text) search(query.text);

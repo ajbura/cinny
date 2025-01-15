@@ -7,9 +7,21 @@ export const UploadCard = recipe({
     padding: config.space.S300,
     backgroundColor: color.SurfaceVariant.Container,
     color: color.SurfaceVariant.OnContainer,
+    borderColor: color.SurfaceVariant.ContainerLine,
   },
   variants: {
     radii: RadiiVariant,
+    outlined: {
+      true: {
+        borderStyle: 'solid',
+        borderWidth: config.borderWidth.B300,
+      },
+    },
+    compact: {
+      true: {
+        padding: config.space.S100,
+      },
+    },
   },
   defaultVariants: {
     radii: '400',
