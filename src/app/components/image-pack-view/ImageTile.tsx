@@ -1,4 +1,4 @@
-import React, { FormEventHandler, useState } from 'react';
+import React, { FormEventHandler, ReactNode, useMemo, useState } from 'react';
 import { Badge, Box, Button, Chip, Icon, Icons, Input, Text } from 'folds';
 import { UsageSwitcher, useUsageStr } from './UsageSwitcher';
 import { mxcUrlToHttp } from '../../utils/matrix';
@@ -6,6 +6,9 @@ import * as css from './style.css';
 import { ImageUsage, imageUsageEqual, PackImageReader } from '../../plugins/custom-emoji';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { SettingTile } from '../setting-tile';
+import { useObjectURL } from '../../hooks/useObjectURL';
+import { createUploadAtom, TUploadAtom } from '../../state/upload';
+import { replaceSpaceWithDash } from '../../utils/common';
 
 type ImageTileProps = {
   defaultShortcode: string;
@@ -85,6 +88,21 @@ export function ImageTile({
   );
 }
 
+type ImageTileUploadProps = {
+  file: File;
+  children: (uploadAtom: TUploadAtom) => ReactNode;
+};
+export function ImageTileUpload({ file, children }: ImageTileUploadProps) {
+  const url = useObjectURL(file);
+  const uploadAtom = useMemo(() => createUploadAtom(file), [file]);
+
+  return (
+    <SettingTile before={<img className={css.ImagePackImage} src={url} alt={file.name} />}>
+      {children(uploadAtom)}
+    </SettingTile>
+  );
+}
+
 type ImageTileEditProps = {
   defaultShortcode: string;
   useAuthentication: boolean;
@@ -114,11 +132,20 @@ export function ImageTileEdit({
     const bodyInput = target?.bodyInput as HTMLTextAreaElement | undefined;
     if (!shortcodeInput || !bodyInput) return;
 
-    const shortcode = shortcodeInput.value.trim();
-    const body = bodyInput.value.trim();
+    const shortcode = replaceSpaceWithDash(shortcodeInput.value.trim());
+    const body = bodyInput.value.trim() || undefined;
     const usage = unsavedUsage;
 
     if (!shortcode) return;
+
+    if (
+      shortcode === image.shortcode &&
+      body === image.body &&
+      imageUsageEqual(usage, defaultUsage)
+    ) {
+      onCancel(defaultShortcode);
+      return;
+    }
 
     const imageReader = new PackImageReader(shortcode, image.url, {
       info: image.info,

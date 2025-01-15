@@ -2,7 +2,7 @@ import { MatrixClient, MatrixEvent, Room } from 'matrix-js-sdk';
 import { ImagePack } from './ImagePack';
 import { EmoteRoomsContent, ImageUsage } from './types';
 import { StateEvent } from '../../../types/matrix/room';
-import { getAccountData, getStateEvents } from '../../utils/room';
+import { getAccountData, getStateEvent, getStateEvents } from '../../utils/room';
 import { AccountDataEvent } from '../../../types/matrix/accountData';
 import { PackMetaReader } from './PackMetaReader';
 
@@ -26,6 +26,14 @@ export function makeImagePacks(packEvents: MatrixEvent[]): ImagePack[] {
     imagePacks.push(ImagePack.fromMatrixEvent(packId, packEvent));
     return imagePacks;
   }, []);
+}
+
+export function getRoomImagePack(room: Room, stateKey: string): ImagePack | undefined {
+  const packEvent = getStateEvent(room, StateEvent.PoniesRoomEmotes, stateKey);
+  if (!packEvent) return undefined;
+  const packId = packEvent.getId();
+  if (!packId) return undefined;
+  return ImagePack.fromMatrixEvent(packId, packEvent);
 }
 
 export function getRoomImagePacks(room: Room): ImagePack[] {

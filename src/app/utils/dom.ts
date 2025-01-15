@@ -75,6 +75,9 @@ export const getDataTransferFiles = (dataTransfer: DataTransfer): File[] | undef
   return files;
 };
 
+export const renameFile = (file: File, name: string): File =>
+  new File([file], name, { type: file.type });
+
 export const getImageUrlBlob = async (url: string) => {
   const res = await fetch(url);
   const blob = await res.blob();

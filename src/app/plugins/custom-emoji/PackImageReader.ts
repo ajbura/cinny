@@ -40,4 +40,13 @@ export class PackImageReader {
 
     return knownUsage.length > 0 ? knownUsage : undefined;
   }
+
+  get content(): PackImage {
+    return {
+      url: this.url,
+      body: this.image.body,
+      usage: this.image.usage,
+      info: this.image.info,
+    };
+  }
 }

@@ -4,6 +4,7 @@ import { AccountDataEvent } from '../../types/matrix/accountData';
 import { StateEvent } from '../../types/matrix/room';
 import {
   getGlobalImagePacks,
+  getRoomImagePack,
   getRoomImagePacks,
   getUserImagePack,
   ImagePack,
@@ -70,6 +71,29 @@ export const useGlobalImagePacks = (): ImagePack[] => {
   );
 
   return globalPacks;
+};
+
+export const useRoomImagePack = (room: Room, stateKey: string): ImagePack | undefined => {
+  const mx = useMatrixClient();
+  const [roomPack, setRoomPack] = useState(() => getRoomImagePack(room, stateKey));
+
+  useStateEventCallback(
+    mx,
+    useCallback(
+      (mEvent) => {
+        if (
+          mEvent.getRoomId() === room.roomId &&
+          mEvent.getType() === StateEvent.PoniesRoomEmotes &&
+          mEvent.getStateKey() === stateKey
+        ) {
+          setRoomPack(getRoomImagePack(room, stateKey));
+        }
+      },
+      [room, stateKey]
+    )
+  );
+
+  return roomPack;
 };
 
 export const useRoomImagePacks = (room: Room): ImagePack[] => {

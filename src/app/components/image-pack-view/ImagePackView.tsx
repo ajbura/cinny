@@ -1,19 +1,18 @@
 import React from 'react';
 import { Box, IconButton, Text, Icon, Icons, Scroll, Chip } from 'folds';
-import { ImagePack } from '../../plugins/custom-emoji';
+import { PackAddress } from '../../plugins/custom-emoji';
 import { Page, PageHeader, PageContent } from '../page';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { RoomImagePack } from './RoomImagePack';
 import { UserImagePack } from './UserImagePack';
 
 type ImagePackViewProps = {
-  imagePack: ImagePack;
+  address: PackAddress | undefined;
   requestClose: () => void;
 };
-export function ImagePackView({ imagePack, requestClose }: ImagePackViewProps) {
+export function ImagePackView({ address, requestClose }: ImagePackViewProps) {
   const mx = useMatrixClient();
-  const { roomId } = imagePack.address ?? {};
-  const room = mx.getRoom(roomId);
+  const room = address && mx.getRoom(address.roomId);
 
   return (
     <Page>
@@ -39,10 +38,10 @@ export function ImagePackView({ imagePack, requestClose }: ImagePackViewProps) {
       <Box grow="Yes">
         <Scroll hideTrack visibility="Hover">
           <PageContent>
-            {room ? (
-              <RoomImagePack room={room} imagePack={imagePack} />
+            {room && address ? (
+              <RoomImagePack room={room} stateKey={address.stateKey} />
             ) : (
-              <UserImagePack imagePack={imagePack} />
+              <UserImagePack />
             )}
           </PageContent>
         </Scroll>

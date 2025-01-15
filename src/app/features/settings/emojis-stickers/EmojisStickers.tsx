@@ -17,7 +17,7 @@ export function EmojisStickers({ requestClose }: EmojisStickersProps) {
   };
 
   if (imagePack) {
-    return <ImagePackView imagePack={imagePack} requestClose={handleImagePackViewClose} />;
+    return <ImagePackView address={imagePack.address} requestClose={handleImagePackViewClose} />;
   }
 
   return (
