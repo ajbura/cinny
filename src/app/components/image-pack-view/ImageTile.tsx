@@ -40,6 +40,7 @@ export function ImageTile({
           className={css.ImagePackImage}
           src={mxcUrlToHttp(mx, image.url, useAuthentication) ?? ''}
           alt={image.shortcode}
+          loading="lazy"
         />
       }
       title={
@@ -163,6 +164,7 @@ export function ImageTileEdit({
           className={css.ImagePackImage}
           src={mxcUrlToHttp(mx, image.url, useAuthentication) ?? ''}
           alt={image.shortcode}
+          loading="lazy"
         />
       }
     >
