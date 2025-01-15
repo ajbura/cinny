@@ -330,54 +330,58 @@ export const ImagePackContent = as<'div', ImagePackContentProps>(
             />
           </SequenceCard>
         </Box>
-        <Box direction="Column" gap="100">
-          <Text size="L400">Images</Text>
-          <SequenceCard
-            style={{ padding: config.space.S300 }}
-            variant="SurfaceVariant"
-            direction="Column"
-            gap="400"
-          >
-            <SettingTile
-              title="Upload Images"
-              description="Select images from your storage to upload them in pack."
-              after={
-                <Button
-                  variant="Secondary"
-                  fill="Soft"
-                  size="300"
-                  radii="300"
-                  type="button"
-                  outlined
-                  onClick={() => pickFiles('image/*')}
-                >
-                  <Text size="B300">Select</Text>
-                </Button>
-              }
-            />
-          </SequenceCard>
-          {files.map((file) => (
-            <SequenceCard
-              key={file.name}
-              style={{ padding: config.space.S300 }}
-              variant="SurfaceVariant"
-              direction="Column"
-              gap="400"
-            >
-              <ImageTileUpload file={file}>
-                {(uploadAtom) => (
-                  <CompactUploadCardRenderer
-                    uploadAtom={uploadAtom}
-                    onRemove={handleUploadRemove}
-                    onComplete={handleUploadComplete}
-                  />
-                )}
-              </ImageTileUpload>
-            </SequenceCard>
-          ))}
-          {uploadedImages.map(renderImage)}
-          {images.map(renderImage)}
-        </Box>
+        {images.length === 0 && !canEdit ? null : (
+          <Box direction="Column" gap="100">
+            <Text size="L400">Images</Text>
+            {canEdit && (
+              <SequenceCard
+                style={{ padding: config.space.S300 }}
+                variant="SurfaceVariant"
+                direction="Column"
+                gap="400"
+              >
+                <SettingTile
+                  title="Upload Images"
+                  description="Select images from your storage to upload them in pack."
+                  after={
+                    <Button
+                      variant="Secondary"
+                      fill="Soft"
+                      size="300"
+                      radii="300"
+                      type="button"
+                      outlined
+                      onClick={() => pickFiles('image/*')}
+                    >
+                      <Text size="B300">Select</Text>
+                    </Button>
+                  }
+                />
+              </SequenceCard>
+            )}
+            {files.map((file) => (
+              <SequenceCard
+                key={file.name}
+                style={{ padding: config.space.S300 }}
+                variant="SurfaceVariant"
+                direction="Column"
+                gap="400"
+              >
+                <ImageTileUpload file={file}>
+                  {(uploadAtom) => (
+                    <CompactUploadCardRenderer
+                      uploadAtom={uploadAtom}
+                      onRemove={handleUploadRemove}
+                      onComplete={handleUploadComplete}
+                    />
+                  )}
+                </ImageTileUpload>
+              </SequenceCard>
+            ))}
+            {uploadedImages.map(renderImage)}
+            {images.map(renderImage)}
+          </Box>
+        )}
       </Box>
     );
   }
