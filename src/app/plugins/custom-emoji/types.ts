@@ -5,10 +5,10 @@ import { IImageInfo } from '../../../types/matrix/common';
 /**
  * im.ponies.emote_rooms content
  */
-export type PackStateKeyToUnknown = Record<string, unknown>;
-export type RoomIdToPackInfo = Record<string, PackStateKeyToUnknown>;
+export type PackStateKeyToObject = Record<string, object>;
+export type RoomIdToStateKey = Record<string, PackStateKeyToObject>;
 export type EmoteRoomsContent = {
-  rooms?: RoomIdToPackInfo;
+  rooms?: RoomIdToStateKey;
 };
 
 /**

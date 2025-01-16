@@ -8,6 +8,8 @@ import { ImageUsage, PackContent } from './types';
 export class ImagePack {
   public readonly id: string;
 
+  public readonly deleted: boolean;
+
   public readonly address: PackAddress | undefined;
 
   public readonly meta: PackMetaReader;
@@ -22,6 +24,8 @@ export class ImagePack {
     this.id = id;
 
     this.address = address;
+
+    this.deleted = content.pack === undefined && content.images === undefined;
 
     this.meta = new PackMetaReader(content.pack ?? {});
     this.images = new PackImagesReader(content.images ?? {});
