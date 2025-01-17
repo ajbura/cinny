@@ -327,7 +327,6 @@ function ImagePack({ roomId, stateKey, handlePackDelete }) {
           {handlePackDelete && (
             <Button variant="danger" onClick={handleDeletePack}>
               Delete Pack
-              {viewMore ? 'View less' : `View ${pack.images.size - 2} more`}
             </Button>
           )}
         </div>
