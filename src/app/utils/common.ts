@@ -112,3 +112,16 @@ export const randomStr = (len = 12): string => {
   }
   return str;
 };
+
+export const suffixRename = (name: string, validator: (newName: string) => boolean): string => {
+  let suffix = 1;
+  let newName = name;
+  do {
+    newName = name + suffix;
+    suffix += 1;
+  } while (validator(newName));
+
+  return newName;
+};
+
+export const replaceSpaceWithDash = (str: string): string => str.replace(/ /g, '-');
