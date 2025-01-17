@@ -57,14 +57,16 @@ export function EmoticonAutocomplete({
 
   const searchList = useMemo(() => {
     const list: Array<EmoticonSearchItem> = [];
-    return list.concat(
-      imagePacks.flatMap((pack) => pack.getImagesFor(PackUsage.Emoticon)),
-      emojis
-    );
+    return list
+      .concat(
+        imagePacks.flatMap((pack) => pack.getImagesFor(PackUsage.Emoticon)),
+        emojis
+      )
   }, [imagePacks]);
 
   const [result, search, resetSearch] = useAsyncSearch(searchList, getEmoticonStr, SEARCH_OPTIONS);
-  const autoCompleteEmoticon = result ? result.items : recentEmoji;
+  const autoCompleteEmoticon = (result ? result.items : recentEmoji)
+      .sort((a, b) => a.shortcode.localeCompare(b.shortcode));
 
   useEffect(() => {
     if (query.text) search(query.text);

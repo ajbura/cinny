@@ -427,7 +427,14 @@ function RoomNotificationsGroupComp({
                         userId={event.sender}
                         src={
                           senderAvatarMxc
-                            ? mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ?? undefined
+                            ? mxcUrlToHttp(
+                                mx,
+                                senderAvatarMxc,
+                                useAuthentication,
+                                48,
+                                48,
+                                'crop'
+                              ) ?? undefined
                             : undefined
                         }
                         alt={displayName}
@@ -459,7 +466,6 @@ function RoomNotificationsGroupComp({
                 </Box>
                 {replyEventId && (
                   <Reply
-                    mx={mx}
                     room={room}
                     replyEventId={replyEventId}
                     threadRootId={threadRootId}

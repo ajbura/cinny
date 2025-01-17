@@ -468,7 +468,7 @@ export function SearchEmojiGroup({
   return (
     <EmojiGroup key={id} id={id} label={label}>
       {tab === EmojiBoardTab.Emoji
-        ? searchResult.map((emoji) =>
+        ? searchResult.sort((a, b) => a.shortcode.localeCompare(b.shortcode)).map((emoji) =>
           'unicode' in emoji ? (
             <EmojiItem
               key={emoji.unicode}
@@ -523,7 +523,7 @@ export const CustomEmojiGroups = memo(
     <>
       {groups.map((pack) => (
         <EmojiGroup key={pack.id} id={pack.id} label={pack.displayName || 'Unknown'}>
-          {pack.getEmojis().map((image) => (
+          {pack.getEmojis().sort((a, b) => a.shortcode.localeCompare(b.shortcode)).map((image) => (
             <EmojiItem
               key={image.shortcode}
               label={image.body || image.shortcode}
@@ -566,7 +566,7 @@ export const StickerGroups = memo(({ mx, groups, useAuthentication }: { mx: Matr
     )}
     {groups.map((pack) => (
       <EmojiGroup key={pack.id} id={pack.id} label={pack.displayName || 'Unknown'}>
-        {pack.getStickers().map((image) => (
+        {pack.getStickers().sort((a, b) => a.shortcode.localeCompare(b.shortcode)).map((image) => (
           <StickerItem
             key={image.shortcode}
             label={image.body || image.shortcode}
