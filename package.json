@@ -108,6 +108,6 @@
     "vite": "5.0.13",
     "vite-plugin-pwa": "0.20.5",
     "vite-plugin-static-copy": "1.0.4",
-    "vite-plugin-top-level-await": "1.4.1"
+    "vite-plugin-top-level-await": "1.4.4"
   }
 }
