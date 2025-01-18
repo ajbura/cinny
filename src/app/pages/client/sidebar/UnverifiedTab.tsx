@@ -15,7 +15,7 @@ import * as css from './UnverifiedTab.css';
 
 export function UnverifiedTab() {
   const mx = useMatrixClient();
-  const deviceList = useDeviceList();
+  const [deviceList] = useDeviceList();
   const unverified = deviceList?.filter(
     (device) => isCrossVerified(mx, device.device_id) === false
   );
