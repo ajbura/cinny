@@ -709,11 +709,13 @@ export const Message = as<'div', MessageProps>(
     const { focusWithinProps } = useFocusWithin({ onFocusWithinChange: setHover });
     const [menuAnchor, setMenuAnchor] = useState<RectCords>();
     const [emojiBoardAnchor, setEmojiBoardAnchor] = useState<RectCords>();
+    // Swipe left gesture that, if it is pulled to the left by 20% of screen width, trigger a reply
     const { offset, onTouchStart, onTouchEnd, onTouchMove } = useTouchOffset({ offsetLimit: [-0.25 * window.innerWidth, 0, 0, 0], touchEndCallback: ([x]) => {
       if (x < -0.2 * window.innerWidth)
         onReply(mEvent.getId()!);
     }});
 
+    // Wrapper of the new onReply for the old onReplyClick
     const onReplyClick: MouseEventHandler<HTMLButtonElement> = useCallback((evt) => {
       const replyId = evt.currentTarget.getAttribute('data-event-id');
       if (!replyId) {

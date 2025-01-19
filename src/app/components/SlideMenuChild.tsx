@@ -8,6 +8,7 @@ import { Home } from "../pages/client/home";
 import { Inbox } from "../pages/client/inbox";
 import { Space } from "../pages/client/space";
 
+// A component to match path and return the corresponding slide menu parent.
 export function SlideMenuChild() {
 	const location = useLocation();
 

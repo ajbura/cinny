@@ -3,6 +3,7 @@ import { useNavigate, useLocation, matchPath } from "react-router-dom";
 import { HOME_PATH, DIRECT_PATH, SPACE_PATH, EXPLORE_PATH, INBOX_PATH } from "../pages/paths";
 import { getHomePath, getDirectPath, getSpacePath, getExplorePath, getInboxPath } from "../pages/pathUtils";
 
+// Moved goBack from BackRouteHandler for reusabilitiy
 export function useGoBack() {
 	const navigate = useNavigate();
 	const location = useLocation();

@@ -892,6 +892,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
     [mx, room, editor]
   );
 
+  // This is been changed to accept the replyId directly instead of a mouse event in order to be used for swipe left reply.
   const handleReply = useCallback(
     (replyId: string) => {
       const replyEvt = room.findEventById(replyId);

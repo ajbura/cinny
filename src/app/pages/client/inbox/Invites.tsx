@@ -309,6 +309,7 @@ export function Invites() {
           </PageContent>
         </Scroll>
       </Box>
+      {/* Create a slide menu offscreen for mobile. Same for all other slide menus. */}
       {screenSize === ScreenSize.Mobile && <PageRootFloat style={{
         transform: `translateX(${offsetOverride ? 0 : (-window.innerWidth + offset[0])}px)`,
         transition: offset[0] ? "none" : ""

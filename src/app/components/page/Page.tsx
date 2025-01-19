@@ -147,6 +147,7 @@ export const PageContentCenter = as<'div'>(({ className, ...props }, ref) => (
   <div className={classNames(css.PageContentCenter, className)} {...props} ref={ref} />
 ));
 
+// Only used in mobile for slide menu
 export function PageRootFloat({ children, style }: { children: ReactNode, style: CSSProperties }) {
   return (
     <Box grow="Yes" style={style} className={classNames(css.PageRootFloat, ContainerColor({ variant: 'Background' }))}>
