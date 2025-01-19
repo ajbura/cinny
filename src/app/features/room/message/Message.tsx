@@ -709,7 +709,7 @@ export const Message = as<'div', MessageProps>(
     const { focusWithinProps } = useFocusWithin({ onFocusWithinChange: setHover });
     const [menuAnchor, setMenuAnchor] = useState<RectCords>();
     const [emojiBoardAnchor, setEmojiBoardAnchor] = useState<RectCords>();
-    const { offset, onTouchStart, onTouchEnd, onTouchMove } = useTouchOffset({ limit: [-0.25 * window.innerWidth, 0, 0, 0], touchEndCallback: ([x]) => {
+    const { offset, onTouchStart, onTouchEnd, onTouchMove } = useTouchOffset({ offsetLimit: [-0.25 * window.innerWidth, 0, 0, 0], touchEndCallback: ([x]) => {
       if (x < -0.2 * window.innerWidth)
         onReply(mEvent.getId()!);
     }});

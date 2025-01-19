@@ -118,6 +118,9 @@ import { useSpoilerClickHandler } from '../../hooks/useSpoilerClickHandler';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
 import { useTouchOffset } from '../../hooks/useTouchOffset';
+import { PageRoot } from '../../components/page';
+import { Space } from '../../pages/client/space';
+import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
 
 const TimelineFloat = as<'div', css.TimelineFloatVariants>(
   ({ position, className, ...props }, ref) => (
