@@ -8,8 +8,8 @@ export function useSlideMenu() {
 	const { offset, onTouchStart, onTouchEnd, onTouchMove } = useTouchOffset({
 		startLimit: [0, 0.1 * window.innerWidth, undefined, undefined],
 		offsetLimit: [0, window.innerWidth, 0, 0],
-		touchEndCallback: (offset) => {
-			if (offset[0] > window.innerWidth * 0.5) {
+		touchEndCallback: (offset, velocity, averageVelocity) => {
+			if (offset[0] > window.innerWidth * 0.5 || (velocity && velocity[0] > 0.9) || (averageVelocity && averageVelocity[0] > 0.8)) {
 				setOffsetOverride(true);
 				setTimeout(() => goBack(), 250);
 			}
