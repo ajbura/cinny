@@ -3,7 +3,8 @@ import { AuthDict, AuthType, IAuthData, UIAFlow } from 'matrix-js-sdk';
 import { getUIAFlowForStages } from '../utils/matrix-uia';
 import { useSupportedUIAFlows, useUIACompleted, useUIAFlow } from '../hooks/useUIAFlows';
 import { UIAFlowOverlay } from './UIAFlowOverlay';
-import { PasswordStage } from './uia-stages';
+import { PasswordStage, SSOStage } from './uia-stages';
+import { useMatrixClient } from '../hooks/useMatrixClient';
 
 export const SUPPORTED_IN_APP_UIA_STAGES = [AuthType.Password, AuthType.Sso];
 
@@ -14,13 +15,13 @@ export const pickUIAFlow = (uiaFlows: UIAFlow[]): UIAFlow | undefined => {
 };
 
 type ActionUIAProps = {
-  userId: string;
   authData: IAuthData;
   ongoingFlow: UIAFlow;
   action: (authDict: AuthDict) => void;
   onCancel: () => void;
 };
-export function ActionUIA({ userId, authData, ongoingFlow, action, onCancel }: ActionUIAProps) {
+export function ActionUIA({ authData, ongoingFlow, action, onCancel }: ActionUIAProps) {
+  const mx = useMatrixClient();
   const completed = useUIACompleted(authData);
   const { getStageToComplete } = useUIAFlow(authData, ongoingFlow);
 
@@ -35,7 +36,15 @@ export function ActionUIA({ userId, authData, ongoingFlow, action, onCancel }: A
     >
       {stageToComplete.type === AuthType.Password && (
         <PasswordStage
-          userId={userId}
+          userId={mx.getUserId()!}
+          stageData={stageToComplete}
+          onCancel={onCancel}
+          submitAuthDict={action}
+        />
+      )}
+      {stageToComplete.type === AuthType.Sso && stageToComplete.session && (
+        <SSOStage
+          ssoRedirectURL={mx.getFallbackAuthUrl(AuthType.Sso, stageToComplete.session)}
           stageData={stageToComplete}
           onCancel={onCancel}
           submitAuthDict={action}

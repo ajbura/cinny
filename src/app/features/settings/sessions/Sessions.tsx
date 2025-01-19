@@ -404,7 +404,6 @@ export function Sessions({ requestClose }: SessionsProps) {
                         >
                           {(ongoingFlow) => (
                             <ActionUIA
-                              userId={mx.getUserId()!}
                               authData={authData}
                               ongoingFlow={ongoingFlow}
                               action={deleteDevices}
