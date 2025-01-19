@@ -14,14 +14,12 @@ export function SSOStage({
   const { errorCode, error, session } = stageData;
   const [ssoWindow, setSSOWindow] = useState<Window>();
 
-  const handleSubmit = useCallback(
-    () =>
-      submitAuthDict({
-        type: AuthType.Sso,
-        session,
-      }),
-    [submitAuthDict, session]
-  );
+  const handleSubmit = useCallback(() => {
+    submitAuthDict({
+      type: AuthType.Sso,
+      session,
+    });
+  }, [submitAuthDict, session]);
 
   const handleContinue = () => {
     const w = window.open(ssoRedirectURL, '_blank');
