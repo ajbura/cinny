@@ -900,7 +900,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
       const editedReply = getEditedEvent(replyId, replyEvt, room.getUnfilteredTimelineSet());
       const content: IContent = editedReply?.getContent()['m.new_content'] ?? replyEvt.getContent();
       const { body, formatted_body: formattedBody } = content;
-      const { 'm.relates_to': relation } = replyEvt.getOriginalContent();
+      const { 'm.relates_to': relation } = replyEvt.getWireContent();
       const senderId = replyEvt.getSender();
       if (senderId && typeof body === 'string') {
         setReplyDraft({
