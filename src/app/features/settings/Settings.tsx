@@ -12,6 +12,7 @@ import { UserAvatar } from '../../components/user-avatar';
 import { nameInitials } from '../../utils/common';
 import { Notifications } from './notifications';
 import { Sessions } from './sessions';
+import { Encryption } from './encryption';
 import { EmojisStickers } from './emojis-stickers';
 import { DeveloperTools } from './developer-tools';
 import { About } from './about';
@@ -174,6 +175,9 @@ export function Settings({ initialPage, requestClose }: SettingsProps) {
       )}
       {activePage === SettingsPages.SessionsPage && (
         <Sessions requestClose={handlePageRequestClose} />
+      )}
+      {activePage === SettingsPages.EncryptionPage && (
+        <Encryption requestClose={handlePageRequestClose} />
       )}
       {activePage === SettingsPages.EmojisStickersPage && (
         <EmojisStickers requestClose={handlePageRequestClose} />
