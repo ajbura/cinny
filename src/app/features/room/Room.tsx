@@ -13,6 +13,7 @@ import { useKeyDown } from '../../hooks/useKeyDown';
 import { markAsRead } from '../../../client/action/notifications';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useRoomMembers } from '../../hooks/useRoomMembers';
+import { isComposing } from '../../utils/keyboard';
 
 export function Room() {
   const { eventId } = useParams();
@@ -28,7 +29,7 @@ export function Room() {
     window,
     useCallback(
       (evt) => {
-        if (isKeyHotkey('escape', evt)) {
+        if (!isComposing(evt) && isKeyHotkey('escape', evt)) {
           markAsRead(mx, room.roomId);
         }
       },

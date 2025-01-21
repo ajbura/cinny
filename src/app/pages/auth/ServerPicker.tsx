@@ -22,7 +22,7 @@ import {
 import FocusTrap from 'focus-trap-react';
 
 import { useDebounce } from '../../hooks/useDebounce';
-import { stopPropagation } from '../../utils/keyboard';
+import { isComposing, stopPropagation } from '../../utils/keyboard';
 
 export function ServerPicker({
   server,
@@ -53,6 +53,9 @@ export function ServerPicker({
   };
 
   const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = (evt) => {
+    if (isComposing(evt.nativeEvent)) {
+      return;
+    }
     if (evt.key === 'ArrowDown') {
       evt.preventDefault();
       setServerMenuAnchor(undefined);

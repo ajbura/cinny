@@ -23,6 +23,7 @@ import { RenderElement, RenderLeaf } from './Elements';
 import { CustomElement } from './slate';
 import * as css from './Editor.css';
 import { toggleKeyboardShortcut } from './keyboard';
+import { isComposing } from '../../utils/keyboard';
 
 const initialValue: CustomElement[] = [
   {
@@ -99,6 +100,9 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
 
     const handleKeydown: KeyboardEventHandler = useCallback(
       (evt) => {
+        if (isComposing(evt.nativeEvent)) {
+          return
+        }
         onKeyDown?.(evt);
         const shortcutToggled = toggleKeyboardShortcut(editor, evt);
         if (shortcutToggled) evt.preventDefault();
