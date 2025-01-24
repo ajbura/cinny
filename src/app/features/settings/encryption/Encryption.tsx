@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Text, IconButton, Icon, Icons, Scroll } from 'folds';
+import { Box, Text, IconButton, Icon, Icons, Scroll, Button } from 'folds';
 import { Page, PageContent, PageHeader } from '../../../components/page';
 import { SequenceCard } from '../../../components/sequence-card';
 import { SequenceCardStyle } from '../styles.css';
@@ -30,6 +30,20 @@ export function Encryption({ requestClose }: EncryptionProps) {
           <PageContent>
             <Box direction="Column" gap="700">
               <Box direction="Column" gap="100">
+                <Text size="L400">Security</Text>
+                <SequenceCard
+                  className={SequenceCardStyle}
+                  variant="SurfaceVariant"
+                  direction="Column"
+                  gap="400"
+                >
+                  <SettingTile
+                    title="Session Verification"
+                    description="Keep all your sessions secured by prompting an alert to verify new session login."
+                  />
+                </SequenceCard>
+              </Box>
+              <Box direction="Column" gap="100">
                 <Text size="L400">Online Backup</Text>
                 <SequenceCard
                   className={SequenceCardStyle}
@@ -38,8 +52,15 @@ export function Encryption({ requestClose }: EncryptionProps) {
                   gap="400"
                 >
                   <SettingTile
-                    title="Messages Online Backup"
-                    description="Always keep secure backup of your encrypted messages data to decrypt messages later."
+                    title="Automatic Backup"
+                    description="Continuously save encryption data on server to decrypt messages later."
+                    after={
+                      <Button size="300" variant="Success" radii="300">
+                        <Text as="span" size="B300">
+                          Restore
+                        </Text>
+                      </Button>
+                    }
                   />
                 </SequenceCard>
               </Box>
