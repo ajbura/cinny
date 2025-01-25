@@ -4,6 +4,7 @@ import { Page, PageContent, PageHeader } from '../../../components/page';
 import { SequenceCard } from '../../../components/sequence-card';
 import { SequenceCardStyle } from '../styles.css';
 import { SettingTile } from '../../../components/setting-tile';
+import { LocalBackup } from './LocalBackup';
 
 type EncryptionProps = {
   requestClose: () => void;
@@ -64,31 +65,7 @@ export function Encryption({ requestClose }: EncryptionProps) {
                   />
                 </SequenceCard>
               </Box>
-              <Box direction="Column" gap="100">
-                <Text size="L400">Local Backup</Text>
-                <SequenceCard
-                  className={SequenceCardStyle}
-                  variant="SurfaceVariant"
-                  direction="Column"
-                  gap="400"
-                >
-                  <SettingTile
-                    title="Export Messages Data"
-                    description="Save copy of encryption data on your device to decrypt messages later."
-                  />
-                </SequenceCard>
-                <SequenceCard
-                  className={SequenceCardStyle}
-                  variant="SurfaceVariant"
-                  direction="Column"
-                  gap="400"
-                >
-                  <SettingTile
-                    title="Import Messages Data"
-                    description="Load copy of encryption data from device to decrypt your messages."
-                  />
-                </SequenceCard>
-              </Box>
+              <LocalBackup />
             </Box>
           </PageContent>
         </Scroll>
