@@ -1,20 +1,9 @@
-import {
-  Box,
-  Button,
-  color,
-  config,
-  Dialog,
-  Header,
-  Icon,
-  IconButton,
-  Icons,
-  Input,
-  Text,
-} from 'folds';
+import { Box, Button, color, config, Dialog, Header, Icon, IconButton, Icons, Text } from 'folds';
 import React, { FormEventHandler } from 'react';
 import { AuthType } from 'matrix-js-sdk';
 import { StageComponentProps } from './types';
 import { ErrorCode } from '../../cs-errorcode';
+import { PasswordInput } from '../password-input/PasswordInput';
 
 export function PasswordStage({
   stageData,
@@ -74,7 +63,7 @@ export function PasswordStage({
           </Text>
           <Box direction="Column" gap="100">
             <Text size="L400">Password</Text>
-            <Input type="password" name="passwordInput" outlined autoFocus required />
+            <PasswordInput size="400" name="passwordInput" outlined autoFocus required />
             {errorCode && (
               <Box alignItems="Center" gap="100" style={{ color: color.Critical.Main }}>
                 <Icon size="50" src={Icons.Warning} filled />
