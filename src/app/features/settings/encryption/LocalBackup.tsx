@@ -209,7 +209,7 @@ function ImportKeys({ file, onDone }: ImportKeysProps) {
       <Box as="form" onSubmit={handleSubmit} direction="Column" gap="100">
         <Box gap="200" alignItems="End">
           <Box grow="Yes" direction="Column" gap="100">
-            <Text size="L400">Password:</Text>
+            <Text size="L400">Password</Text>
             <PasswordInput
               name="passwordInput"
               size="400"
