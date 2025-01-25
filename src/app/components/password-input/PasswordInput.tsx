@@ -6,7 +6,7 @@ type PasswordInputProps = Omit<ComponentProps<typeof Input>, 'type' | 'size'> & 
   size: '400' | '500';
 };
 export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
-  ({ variant, size, style, after, ...props }, ref) => {
+  ({ variant = 'Background', size, style, after, ...props }, ref) => {
     const paddingRight: string = size === '500' ? config.space.S300 : config.space.S200;
 
     return (
