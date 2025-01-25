@@ -33,5 +33,6 @@ export const TextViewerPre = style([
   {
     padding: config.space.S600,
     whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
   },
 ]);
