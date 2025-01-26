@@ -16,7 +16,6 @@ export function SSOStage({
 
   const handleSubmit = useCallback(() => {
     submitAuthDict({
-      type: AuthType.Sso,
       session,
     });
   }, [submitAuthDict, session]);
