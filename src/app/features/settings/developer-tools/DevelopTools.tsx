@@ -32,6 +32,7 @@ import { useAccountDataCallback } from '../../../hooks/useAccountDataCallback';
 import { TextViewer } from '../../../components/text-viewer';
 import { stopPropagation } from '../../../utils/keyboard';
 import { AccountDataEditor } from './AccountDataEditor';
+import { copyToClipboard } from '../../../utils/dom';
 
 function AccountData() {
   const mx = useMatrixClient();
@@ -221,6 +222,7 @@ type DeveloperToolsProps = {
   requestClose: () => void;
 };
 export function DeveloperTools({ requestClose }: DeveloperToolsProps) {
+  const mx = useMatrixClient();
   const [developerTools, setDeveloperTools] = useSetting(settingsAtom, 'developerTools');
 
   return (
@@ -262,6 +264,33 @@ export function DeveloperTools({ requestClose }: DeveloperToolsProps) {
                     }
                   />
                 </SequenceCard>
+                {developerTools && (
+                  <SequenceCard
+                    className={SequenceCardStyle}
+                    variant="SurfaceVariant"
+                    direction="Column"
+                    gap="400"
+                  >
+                    <SettingTile
+                      title="Access Token"
+                      description="Copy access token to clipboard."
+                      after={
+                        <Button
+                          onClick={() =>
+                            copyToClipboard(mx.getAccessToken() ?? '<NO_ACCESS_TOKEN_FOUND>')
+                          }
+                          variant="Secondary"
+                          fill="Soft"
+                          size="300"
+                          radii="300"
+                          outlined
+                        >
+                          <Text size="B300">Copy</Text>
+                        </Button>
+                      }
+                    />
+                  </SequenceCard>
+                )}
               </Box>
               {developerTools && <AccountData />}
             </Box>

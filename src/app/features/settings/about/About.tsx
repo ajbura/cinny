@@ -8,7 +8,6 @@ import CinnySVG from '../../../../../public/res/svg/cinny.svg';
 import cons from '../../../../client/state/cons';
 import { clearCacheAndReload } from '../../../../client/initMatrix';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
-import { copyToClipboard } from '../../../utils/dom';
 
 type AboutProps = {
   requestClose: () => void;
@@ -83,7 +82,32 @@ export function About({ requestClose }: AboutProps) {
                   </Box>
                 </Box>
               </Box>
-
+              <Box direction="Column" gap="100">
+                <Text size="L400">Options</Text>
+                <SequenceCard
+                  className={SequenceCardStyle}
+                  variant="SurfaceVariant"
+                  direction="Column"
+                  gap="400"
+                >
+                  <SettingTile
+                    title="Clear Cache & Reload"
+                    description="Clear all your locally stored data and reload from server."
+                    after={
+                      <Button
+                        onClick={() => clearCacheAndReload(mx)}
+                        variant="Secondary"
+                        fill="Soft"
+                        size="300"
+                        radii="300"
+                        outlined
+                      >
+                        <Text size="B300">Clear Cache</Text>
+                      </Button>
+                    }
+                  />
+                </SequenceCard>
+              </Box>
               <Box direction="Column" gap="100">
                 <Text size="L400">Credits</Text>
                 <SequenceCard
@@ -210,58 +234,6 @@ export function About({ requestClose }: AboutProps) {
                       </Text>
                     </li>
                   </Box>
-                </SequenceCard>
-              </Box>
-
-              <Box direction="Column" gap="100">
-                <Text size="L400">Options</Text>
-                <SequenceCard
-                  className={SequenceCardStyle}
-                  variant="SurfaceVariant"
-                  direction="Column"
-                  gap="400"
-                >
-                  <SettingTile
-                    title="Clear Cache & Reload"
-                    description="Clear all your locally stored data and reload from server."
-                    after={
-                      <Button
-                        onClick={() => clearCacheAndReload(mx)}
-                        variant="Secondary"
-                        fill="Soft"
-                        size="300"
-                        radii="300"
-                        outlined
-                      >
-                        <Text size="B300">Clear Cache</Text>
-                      </Button>
-                    }
-                  />
-                </SequenceCard>
-                <SequenceCard
-                  className={SequenceCardStyle}
-                  variant="SurfaceVariant"
-                  direction="Column"
-                  gap="400"
-                >
-                  <SettingTile
-                    title="Access Token"
-                    description="Copy access token to clipboard."
-                    after={
-                      <Button
-                        onClick={() =>
-                          copyToClipboard(mx.getAccessToken() ?? '<NO_ACCESS_TOKEN_FOUND>')
-                        }
-                        variant="Secondary"
-                        fill="Soft"
-                        size="300"
-                        radii="300"
-                        outlined
-                      >
-                        <Text size="B300">Copy</Text>
-                      </Button>
-                    }
-                  />
                 </SequenceCard>
               </Box>
             </Box>
