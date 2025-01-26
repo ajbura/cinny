@@ -45,6 +45,7 @@ import { getMxIdServer } from '../../../utils/matrix';
 import { stopPropagation } from '../../../utils/keyboard';
 import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { BackRouteHandler } from '../../../components/BackRouteHandler';
+// import { LimitWarning } from './LimitWarning';
 
 const useServerSearchParams = (searchParams: URLSearchParams): ExploreServerPathSearchParams =>
   useMemo(
@@ -260,6 +261,7 @@ function LimitButton({ limit, onLimitChange }: LimitButtonProps) {
     if (!limitInput) return;
     const newLimit = limitInput.value.trim();
     if (!newLimit) return;
+    // my work here
     onLimitChange(newLimit);
   };
 
@@ -299,17 +301,27 @@ function LimitButton({ limit, onLimitChange }: LimitButtonProps) {
                   <Chip variant="SurfaceVariant" onClick={() => setLimit('96')} radii="Pill">
                     <Text size="T200">96</Text>
                   </Chip>
+                  <Chip variant="SurfaceVariant" onClick={() => setLimit('10000')} radii="Pill">
+                    <Text size="T200">Max</Text>
+                  </Chip>
                 </Box>
               </Box>
               <Box as="form" onSubmit={handleLimitSubmit} direction="Column" gap="300">
                 <Box direction="Column" gap="100">
                   <Text size="L400">Custom Limit</Text>
                   <Input
+                    placeholder="Max limit- 10000"
                     name="limitInput"
                     size="300"
                     variant="Background"
                     defaultValue={limit}
                     min={1}
+                    max={10000}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      if (parseInt(e.target.value) > 10000) {
+                        e.target.value = e.target.value.slice(0, 4);
+                      }
+                    }}
                     step={1}
                     outlined
                     type="number"
