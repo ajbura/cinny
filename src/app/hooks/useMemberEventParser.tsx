@@ -28,9 +28,9 @@ export const useMemberEventParser = (): MemberEventParser => {
 
     const senderName = getMxIdLocalPart(senderId);
     const userName =
-      content.displayname && typeof content.displayname !== 'string'
-        ? getMxIdLocalPart(userId)
-        : content.displayname || getMxIdLocalPart(userId);
+      content.displayname && typeof content.displayname === 'string'
+        ? content.displayname || getMxIdLocalPart(userId)
+        : getMxIdLocalPart(userId);
 
     if (isMembershipChanged(mEvent)) {
       if (content.membership === Membership.Invite) {
@@ -179,40 +179,42 @@ export const useMemberEventParser = (): MemberEventParser => {
 
     if (content.displayname !== prevContent.displayname) {
       const prevUserName =
-        prevContent.displayname && typeof prevContent.displayname !== 'string'
-          ? getMxIdLocalPart(userId)
-          : prevContent.displayname || getMxIdLocalPart(userId);
+        prevContent.displayname && typeof prevContent.displayname === 'string'
+          ? prevContent.displayname || getMxIdLocalPart(userId)
+          : getMxIdLocalPart(userId);
 
       return {
         icon: Icons.Mention,
-        body: content.displayname ? (
-          <>
-            <b>{prevUserName}</b>
-            {' changed display name to '}
-            <b>{userName}</b>
-          </>
-        ) : (
-          <>
-            <b>{prevUserName}</b>
-            {' removed their display name '}
-          </>
-        ),
+        body:
+          content.displayname && typeof content.displayname === 'string' ? (
+            <>
+              <b>{prevUserName}</b>
+              {' changed display name to '}
+              <b>{userName}</b>
+            </>
+          ) : (
+            <>
+              <b>{prevUserName}</b>
+              {' removed their display name '}
+            </>
+          ),
       };
     }
     if (content.avatar_url !== prevContent.avatar_url) {
       return {
         icon: Icons.User,
-        body: content.displayname ? (
-          <>
-            <b>{userName}</b>
-            {' changed their avatar'}
-          </>
-        ) : (
-          <>
-            <b>{userName}</b>
-            {' removed their avatar '}
-          </>
-        ),
+        body:
+          content.avatar_url && typeof content.avatar_url === 'string' ? (
+            <>
+              <b>{userName}</b>
+              {' changed their avatar'}
+            </>
+          ) : (
+            <>
+              <b>{userName}</b>
+              {' removed their avatar '}
+            </>
+          ),
       };
     }
 
