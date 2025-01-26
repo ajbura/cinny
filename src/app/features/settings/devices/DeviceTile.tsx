@@ -1,11 +1,37 @@
 import React, { FormEventHandler, useCallback, useEffect, useState } from 'react';
-import { Box, Text, IconButton, Icon, Icons, Chip, Input, Button, color, Spinner } from 'folds';
+import {
+  Box,
+  Text,
+  IconButton,
+  Icon,
+  Icons,
+  Chip,
+  Input,
+  Button,
+  color,
+  Spinner,
+  toRem,
+} from 'folds';
 import { IMyDevice, MatrixError } from 'matrix-js-sdk';
 import { SettingTile } from '../../../components/setting-tile';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { timeDayMonYear, timeHourMinute, today, yesterday } from '../../../utils/time';
 import { BreakWord } from '../../../styles/Text.css';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
+import { SequenceCard } from '../../../components/sequence-card';
+import { SequenceCardStyle } from '../styles.css';
+
+export function DeviceTilePlaceholder() {
+  return (
+    <SequenceCard
+      className={SequenceCardStyle}
+      style={{ height: toRem(66) }}
+      variant="SurfaceVariant"
+      direction="Column"
+      gap="400"
+    />
+  );
+}
 
 function DeviceActiveTime({ ts }: { ts: number }) {
   return (

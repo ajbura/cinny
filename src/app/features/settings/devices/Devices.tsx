@@ -1,17 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import {
-  Box,
-  Text,
-  IconButton,
-  Icon,
-  Icons,
-  Scroll,
-  Button,
-  Spinner,
-  toRem,
-  Menu,
-  config,
-} from 'folds';
+import { Box, Text, IconButton, Icon, Icons, Scroll, Button, Spinner, Menu, config } from 'folds';
 import { AuthDict, MatrixError } from 'matrix-js-sdk';
 import { Page, PageContent, PageHeader } from '../../../components/page';
 import { SequenceCard } from '../../../components/sequence-card';
@@ -23,46 +11,13 @@ import { AsyncState, AsyncStatus, useAsync } from '../../../hooks/useAsyncCallba
 import { ActionUIA, ActionUIAFlowsLoader } from '../../../components/ActionUIA';
 import { useUIAMatrixError } from '../../../hooks/useUIAFlows';
 import { LocalBackup } from './LocalBackup';
-import { DeviceTile } from './DeviceTile';
+import { DeviceTile, DeviceTilePlaceholder } from './DeviceTile';
 
 function DevicesPlaceholder() {
   return (
     <Box direction="Column" gap="100">
-      <SequenceCard
-        className={SequenceCardStyle}
-        style={{ height: toRem(64) }}
-        variant="SurfaceVariant"
-        direction="Column"
-        gap="400"
-      />
-      <SequenceCard
-        className={SequenceCardStyle}
-        style={{ height: toRem(64) }}
-        variant="SurfaceVariant"
-        direction="Column"
-        gap="400"
-      />
-      <SequenceCard
-        className={SequenceCardStyle}
-        style={{ height: toRem(64) }}
-        variant="SurfaceVariant"
-        direction="Column"
-        gap="400"
-      />
-      <SequenceCard
-        className={SequenceCardStyle}
-        style={{ height: toRem(64) }}
-        variant="SurfaceVariant"
-        direction="Column"
-        gap="400"
-      />
-      <SequenceCard
-        className={SequenceCardStyle}
-        style={{ height: toRem(64) }}
-        variant="SurfaceVariant"
-        direction="Column"
-        gap="400"
-      />
+      <DeviceTilePlaceholder />
+      <DeviceTilePlaceholder />
     </Box>
   );
 }
@@ -236,10 +191,9 @@ export function Devices({ requestClose }: DevicesProps) {
                   />
                 </SequenceCard>
               </Box>
-              {devices === null && <DevicesPlaceholder />}
-              {currentDevice && (
-                <Box direction="Column" gap="100">
-                  <Text size="L400">Current</Text>
+              <Box direction="Column" gap="100">
+                <Text size="L400">Current</Text>
+                {currentDevice ? (
                   <SequenceCard
                     className={SequenceCardStyle}
                     variant={deleted.has(currentDevice.device_id) ? 'Critical' : 'SurfaceVariant'}
@@ -254,8 +208,11 @@ export function Devices({ requestClose }: DevicesProps) {
                       disabled={deleting}
                     />
                   </SequenceCard>
-                </Box>
-              )}
+                ) : (
+                  <DeviceTilePlaceholder />
+                )}
+              </Box>
+              {devices === null && <DevicesPlaceholder />}
               {otherDevices && otherDevices.length > 0 && (
                 <Box direction="Column" gap="100">
                   <Text size="L400">Others</Text>
