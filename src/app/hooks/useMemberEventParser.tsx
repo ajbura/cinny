@@ -28,7 +28,7 @@ export const useMemberEventParser = (): MemberEventParser => {
 
     const senderName = getMxIdLocalPart(senderId);
     const userName =
-      content.displayname && typeof content.displayname === 'string'
+      typeof content.displayname === 'string'
         ? content.displayname || getMxIdLocalPart(userId)
         : getMxIdLocalPart(userId);
 
@@ -179,14 +179,14 @@ export const useMemberEventParser = (): MemberEventParser => {
 
     if (content.displayname !== prevContent.displayname) {
       const prevUserName =
-        prevContent.displayname && typeof prevContent.displayname === 'string'
+        typeof prevContent.displayname === 'string'
           ? prevContent.displayname || getMxIdLocalPart(userId)
           : getMxIdLocalPart(userId);
 
       return {
         icon: Icons.Mention,
         body:
-          content.displayname && typeof content.displayname === 'string' ? (
+          typeof content.displayname === 'string' ? (
             <>
               <b>{prevUserName}</b>
               {' changed display name to '}
