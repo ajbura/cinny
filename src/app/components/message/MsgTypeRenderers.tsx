@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { Box, Chip, Icon, Icons, Text, toRem } from 'folds';
 import { IContent } from 'matrix-js-sdk';
 import { JUMBO_EMOJI_REG, URL_REG } from '../../utils/regex';
@@ -27,6 +27,11 @@ import { FALLBACK_MIMETYPE, getBlobSafeMimeType } from '../../utils/mimeTypes';
 import { parseGeoUri, scaleYDimension } from '../../utils/common';
 import { Attachment, AttachmentBox, AttachmentContent, AttachmentHeader } from './attachment';
 import { FileHeader } from './FileHeader';
+import { Button } from 'folds';
+import { buttonStyle } from './MsgTypeRenderers.css';
+import truncateHtml from 'truncate-html';
+
+const CHARACTER_LIMIT = 750;
 
 export function MBadEncrypted() {
   return (
@@ -63,6 +68,11 @@ export function BrokenContent() {
   );
 }
 
+const truncateText = (text: string, limit: number) => {
+  if (text.length <= limit) return text;
+  return `${text.slice(0, limit).trim()}...`;
+};
+
 type RenderBodyProps = {
   body: string;
   customBody?: string;
@@ -80,6 +90,14 @@ export function MText({ edited, content, renderBody, renderUrlsPreview }: MTextP
   const trimmedBody = trimReplyFromBody(body);
   const urlsMatch = renderUrlsPreview && trimmedBody.match(URL_REG);
   const urls = urlsMatch ? [...new Set(urlsMatch)] : undefined;
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const shouldTruncate =
+    trimmedBody.length > 750 || (typeof customBody === 'string' && customBody.length > 750);
+  const finalContent = isExpanded ? trimmedBody : truncateText(trimmedBody, CHARACTER_LIMIT);
+  const customFinalContent = isExpanded
+    ? (customBody as string)
+    : truncateHtml(customBody as string, CHARACTER_LIMIT);
 
   return (
     <>
@@ -88,12 +106,24 @@ export function MText({ edited, content, renderBody, renderUrlsPreview }: MTextP
         jumboEmoji={JUMBO_EMOJI_REG.test(trimmedBody)}
       >
         {renderBody({
-          body: trimmedBody,
-          customBody: typeof customBody === 'string' ? customBody : undefined,
+          body: finalContent,
+          customBody: typeof customBody === 'string' ? customFinalContent : undefined,
         })}
         {edited && <MessageEditedContent />}
       </MessageTextBody>
       {renderUrlsPreview && urls && urls.length > 0 && renderUrlsPreview(urls)}
+
+      {shouldTruncate && (
+        <Button
+          size="400"
+          fill="None"
+          radii="0"
+          className={buttonStyle}
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          {isExpanded ? 'Show Less' : 'Show More'}
+        </Button>
+      )}
     </>
   );
 }
