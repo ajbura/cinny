@@ -10,9 +10,9 @@ import React, {
 } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { isKeyHotkey } from 'is-hotkey';
-import { EventType, IContent, MsgType, RelationType, Room } from 'matrix-js-sdk';
+import { EventType, IContent, MsgType, RelationType, Room, IMentions } from 'matrix-js-sdk';
 import { ReactEditor } from 'slate-react';
-import { Transforms, Editor } from 'slate';
+import {Transforms, Editor, Descendant} from 'slate';
 import {
   Box,
   Dialog,
@@ -53,10 +53,19 @@ import {
   isEmptyEditor,
   getBeginCommand,
   trimCommand,
+  BlockType,
 } from '../../components/editor';
 import { EmojiBoard, EmojiBoardTab } from '../../components/emoji-board';
 import { UseStateProvider } from '../../components/UseStateProvider';
-import { TUploadContent, encryptFile, getImageInfo, getMxIdLocalPart, mxcUrlToHttp } from '../../utils/matrix';
+import {
+  TUploadContent,
+  encryptFile,
+  getImageInfo,
+  getMxIdLocalPart,
+  mxcUrlToHttp,
+  isUserId,
+  getCanonicalAliasOrRoomId
+} from '../../utils/matrix';
 import { useTypingStatusUpdater } from '../../hooks/useTypingStatusUpdater';
 import { useFilePicker } from '../../hooks/useFilePicker';
 import { useFilePasteHandler } from '../../hooks/useFilePasteHandler';
@@ -96,12 +105,8 @@ import colorMXID from '../../../util/colorMXID';
 import {
   getAllParents,
   getMemberDisplayName,
-  parseReplyBody,
-  parseReplyFormattedBody,
   trimReplyFromBody,
-  trimReplyFromFormattedBody,
 } from '../../utils/room';
-import { sanitizeText } from '../../utils/sanitize';
 import { CommandAutocomplete } from './CommandAutocomplete';
 import { Command, SHRUG, TABLEFLIP, UNFLIP, useCommands } from '../../hooks/useCommands';
 import { mobileOrTablet } from '../../utils/user-agent';
@@ -109,6 +114,7 @@ import { useElementSizeObserver } from '../../hooks/useElementSizeObserver';
 import { ReplyLayout, ThreadIndicator } from '../../components/message';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { InlineElement } from '../../components/editor/slate';
 
 interface RoomInputProps {
   editor: Editor;
@@ -248,7 +254,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
       uploadBoardHandlers.current?.handleSend();
 
       const commandName = getBeginCommand(editor);
-
       let plainText = toPlainText(editor.children).trim();
       let customHtml = trimCustomHtml(
         toMatrixCustomHTML(editor.children, {
@@ -289,25 +294,41 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
 
       if (plainText === '') return;
 
-      let body = plainText;
-      let formattedBody = customHtml;
-      if (replyDraft) {
-        body = parseReplyBody(replyDraft.userId, trimReplyFromBody(replyDraft.body)) + body;
-        formattedBody =
-          parseReplyFormattedBody(
-            roomId,
-            replyDraft.userId,
-            replyDraft.eventId,
-            replyDraft.formattedBody
-              ? trimReplyFromFormattedBody(replyDraft.formattedBody)
-              : sanitizeText(replyDraft.body)
-          ) + formattedBody;
-      }
+      const body = plainText;
+      const formattedBody = customHtml;
 
       const content: IContent = {
         msgtype: msgType,
         body,
       };
+      const userIdMentions = new Set<string>();
+      if (replyDraft && replyDraft.userId !== mx.getUserId()) {
+        userIdMentions.add(replyDraft.userId);
+      }
+      let mentionsRoom = false;
+      editor.children.forEach((node: Descendant): void => {
+        if ("type" in node && node.type === BlockType.Paragraph) {
+          node.children?.forEach((child: InlineElement): void => {
+            if ("type" in child && child.type === BlockType.Mention) {
+              const mention = child;
+              if (mention.id === getCanonicalAliasOrRoomId(mx, roomId)) {
+                mentionsRoom = true
+              } else if (isUserId(mention.id) && mention.id !== mx.getUserId()) {
+                userIdMentions.add(mention.id)
+              }
+            }
+          })
+        }
+      })
+      const mMentions: IMentions = {}
+      if (userIdMentions.size > 0) {
+        mMentions.user_ids = Array.from(userIdMentions)
+      }
+      if(mentionsRoom) {
+        mMentions.room = true
+      }
+
+      content["m.mentions"] = mMentions
       if (replyDraft || !customHtmlEqualsPlainText(formattedBody, body)) {
         content.format = 'org.matrix.custom.html';
         content.formatted_body = formattedBody;
