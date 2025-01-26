@@ -18,6 +18,7 @@ export const useMemberEventParser = (): MemberEventParser => {
     const prevContent = mEvent.getPrevContent() as IMemberContent;
     const senderId = mEvent.getSender();
     const userId = mEvent.getStateKey();
+    const reason = typeof content.reason === 'string' ? content.reason : undefined;
 
     if (!senderId || !userId)
       return {
@@ -26,7 +27,10 @@ export const useMemberEventParser = (): MemberEventParser => {
       };
 
     const senderName = getMxIdLocalPart(senderId);
-    const userName = content.displayname || getMxIdLocalPart(userId);
+    const userName =
+      content.displayname && typeof content.displayname !== 'string'
+        ? getMxIdLocalPart(userId)
+        : content.displayname || getMxIdLocalPart(userId);
 
     if (isMembershipChanged(mEvent)) {
       if (content.membership === Membership.Invite) {
@@ -39,7 +43,7 @@ export const useMemberEventParser = (): MemberEventParser => {
                 {' accepted '}
                 <b>{userName}</b>
                 {`'s join request `}
-                {content.reason}
+                {reason}
               </>
             ),
           };
@@ -51,7 +55,7 @@ export const useMemberEventParser = (): MemberEventParser => {
             <>
               <b>{senderName}</b>
               {' invited '}
-              <b>{userName}</b> {content.reason}
+              <b>{userName}</b> {reason}
             </>
           ),
         };
@@ -64,7 +68,7 @@ export const useMemberEventParser = (): MemberEventParser => {
             <>
               <b>{userName}</b>
               {' request to join room '}
-              {content.reason}
+              {reason}
             </>
           ),
         };
@@ -91,7 +95,7 @@ export const useMemberEventParser = (): MemberEventParser => {
                 <>
                   <b>{userName}</b>
                   {' rejected the invitation '}
-                  {content.reason}
+                  {reason}
                 </>
               ) : (
                 <>
@@ -99,7 +103,7 @@ export const useMemberEventParser = (): MemberEventParser => {
                   {' rejected '}
                   <b>{userName}</b>
                   {`'s join request `}
-                  {content.reason}
+                  {reason}
                 </>
               ),
           };
@@ -113,7 +117,7 @@ export const useMemberEventParser = (): MemberEventParser => {
                 <>
                   <b>{userName}</b>
                   {' revoked joined request '}
-                  {content.reason}
+                  {reason}
                 </>
               ) : (
                 <>
@@ -121,7 +125,7 @@ export const useMemberEventParser = (): MemberEventParser => {
                   {' revoked '}
                   <b>{userName}</b>
                   {`'s invite `}
-                  {content.reason}
+                  {reason}
                 </>
               ),
           };
@@ -134,7 +138,7 @@ export const useMemberEventParser = (): MemberEventParser => {
               <>
                 <b>{senderName}</b>
                 {' unbanned '}
-                <b>{userName}</b> {content.reason}
+                <b>{userName}</b> {reason}
               </>
             ),
           };
@@ -147,13 +151,13 @@ export const useMemberEventParser = (): MemberEventParser => {
               <>
                 <b>{userName}</b>
                 {' left the room '}
-                {content.reason}
+                {reason}
               </>
             ) : (
               <>
                 <b>{senderName}</b>
                 {' kicked '}
-                <b>{userName}</b> {content.reason}
+                <b>{userName}</b> {reason}
               </>
             ),
         };
@@ -166,7 +170,7 @@ export const useMemberEventParser = (): MemberEventParser => {
             <>
               <b>{senderName}</b>
               {' banned '}
-              <b>{userName}</b> {content.reason}
+              <b>{userName}</b> {reason}
             </>
           ),
         };
@@ -174,7 +178,10 @@ export const useMemberEventParser = (): MemberEventParser => {
     }
 
     if (content.displayname !== prevContent.displayname) {
-      const prevUserName = prevContent.displayname || userId;
+      const prevUserName =
+        prevContent.displayname && typeof prevContent.displayname !== 'string'
+          ? getMxIdLocalPart(userId)
+          : prevContent.displayname || getMxIdLocalPart(userId);
 
       return {
         icon: Icons.Mention,
@@ -211,7 +218,7 @@ export const useMemberEventParser = (): MemberEventParser => {
 
     return {
       icon: Icons.User,
-      body: 'Broken membership event',
+      body: 'Membership event with no changes',
     };
   };
 
