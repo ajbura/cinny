@@ -184,10 +184,29 @@ function RoomProfile({ roomId }) {
   const renderNameAndTopic = () => (
     <div
       className="room-profile__display"
-      style={{ marginBottom: avatarSrc && canChangeAvatar ? '24px' : '0' }}
+      style={{
+        marginBottom: avatarSrc && canChangeAvatar ? '24px' : '0',
+      }}
     >
-      <div>
-        <Text variant="h2" weight="medium" primary>
+      <div
+        style={{
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          overflowWrap: 'break-word',
+        }}
+      >
+        <Text
+          style={{
+            width: '100%',
+            whiteSpace: 'normal',
+            wordBreak: 'break-word',
+          }}
+          variant="h2"
+          weight="medium"
+          primary
+        >
           {roomName}
         </Text>
         {(canChangeName || canChangeTopic) && (
@@ -196,6 +215,7 @@ function RoomProfile({ roomId }) {
             size="extra-small"
             tooltip="Edit"
             onClick={() => setIsEditing(true)}
+            style={{ marginTop: '8px' }}
           />
         )}
       </div>
