@@ -12,8 +12,13 @@ type UploadCardProps = {
 };
 
 export const UploadCard = forwardRef<HTMLDivElement, UploadCardProps & css.UploadCardVariant>(
-  ({ before, after, children, bottom, radii }, ref) => (
-    <Box className={css.UploadCard({ radii })} direction="Column" gap="200" ref={ref}>
+  ({ before, after, children, bottom, radii, outlined, compact }, ref) => (
+    <Box
+      className={css.UploadCard({ radii, outlined, compact })}
+      direction="Column"
+      gap="200"
+      ref={ref}
+    >
       <Box alignItems="Center" gap="200">
         {before}
         <Box alignItems="Center" grow="Yes" gap="200">
@@ -33,7 +38,7 @@ type UploadCardProgressProps = {
 
 export function UploadCardProgress({ sentBytes, totalBytes }: UploadCardProgressProps) {
   return (
-    <Box direction="Column" gap="200">
+    <Box grow="Yes" direction="Column" gap="200">
       <ProgressBar variant="Secondary" size="300" min={0} max={totalBytes} value={sentBytes} />
       <Box alignItems="Center" justifyContent="SpaceBetween">
         <Badge variant="Secondary" fill="Solid" radii="Pill">
@@ -45,6 +50,24 @@ export function UploadCardProgress({ sentBytes, totalBytes }: UploadCardProgress
           </Text>
         </Badge>
       </Box>
+    </Box>
+  );
+}
+
+export function CompactUploadCardProgress({ sentBytes, totalBytes }: UploadCardProgressProps) {
+  return (
+    <Box grow="Yes" gap="200" alignItems="Center">
+      <Badge variant="Secondary" fill="Solid" radii="Pill">
+        <Text size="L400">{`${Math.round(percent(0, totalBytes, sentBytes))}%`}</Text>
+      </Badge>
+      <Box grow="Yes" direction="Column">
+        <ProgressBar variant="Secondary" size="300" min={0} max={totalBytes} value={sentBytes} />
+      </Box>
+      <Badge variant="Secondary" fill="Soft" radii="Pill">
+        <Text size="L400">
+          {bytesToSize(sentBytes)} / {bytesToSize(totalBytes)}
+        </Text>
+      </Badge>
     </Box>
   );
 }

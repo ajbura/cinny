@@ -27,7 +27,6 @@ import {
   getFileNameExt,
   mimeTypeToExt,
 } from '../../../utils/mimeTypes';
-import * as css from './style.css';
 import { stopPropagation } from '../../../utils/keyboard';
 import {
   decryptFile,
@@ -36,6 +35,7 @@ import {
   mxcUrlToHttp,
 } from '../../../utils/matrix';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { ModalWide } from '../../../styles/Modal.css';
 
 const renderErrorButton = (retry: () => void, text: string) => (
   <TooltipProvider
@@ -111,7 +111,7 @@ export function ReadTextFile({ body, mimeType, url, encInfo, renderViewer }: Rea
               }}
             >
               <Modal
-                className={css.ModalWide}
+                className={ModalWide}
                 size="500"
                 onContextMenu={(evt: any) => evt.stopPropagation()}
               >
@@ -199,7 +199,7 @@ export function ReadPdfFile({ body, mimeType, url, encInfo, renderViewer }: Read
               }}
             >
               <Modal
-                className={css.ModalWide}
+                className={ModalWide}
                 size="500"
                 onContextMenu={(evt: any) => evt.stopPropagation()}
               >

@@ -56,7 +56,13 @@ import {
 } from '../../components/editor';
 import { EmojiBoard, EmojiBoardTab } from '../../components/emoji-board';
 import { UseStateProvider } from '../../components/UseStateProvider';
-import { TUploadContent, encryptFile, getImageInfo, getMxIdLocalPart, mxcUrlToHttp } from '../../utils/matrix';
+import {
+  TUploadContent,
+  encryptFile,
+  getImageInfo,
+  getMxIdLocalPart,
+  mxcUrlToHttp,
+} from '../../utils/matrix';
 import { useTypingStatusUpdater } from '../../hooks/useTypingStatusUpdater';
 import { useFilePicker } from '../../hooks/useFilePicker';
 import { useFilePasteHandler } from '../../hooks/useFilePasteHandler';
@@ -413,7 +419,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                       <UploadCardRenderer
                         // eslint-disable-next-line react/no-array-index-key
                         key={index}
-                        file={fileItem.file}
                         isEncrypted={!!fileItem.encInfo}
                         uploadAtom={roomUploadAtomFamily(fileItem.file)}
                         onRemove={handleRemoveUpload}

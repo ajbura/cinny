@@ -41,7 +41,6 @@ import { preventScrollWithArrowKey, stopPropagation } from '../../utils/keyboard
 import { useRelevantImagePacks } from '../../hooks/useImagePacks';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useRecentEmoji } from '../../hooks/useRecentEmoji';
-import { ExtendedPackImage, ImagePack, PackUsage } from '../../plugins/custom-emoji';
 import { isUserId, mxcUrlToHttp } from '../../utils/matrix';
 import { editableActiveElement, isIntersectingScrollView, targetFromEvent } from '../../utils/dom';
 import { useAsyncSearch, UseAsyncSearchOptions } from '../../hooks/useAsyncSearch';
@@ -50,6 +49,7 @@ import { useThrottle } from '../../hooks/useThrottle';
 import { addRecentEmoji } from '../../plugins/recent-emoji';
 import { mobileOrTablet } from '../../utils/user-agent';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { ImagePack, ImageUsage, PackImageReader } from '../../plugins/custom-emoji';
 
 const RECENT_GROUP_ID = 'recent_group';
 const SEARCH_GROUP_ID = 'search_group';
@@ -359,16 +359,16 @@ function ImagePackSidebarStack({
 }: {
   mx: MatrixClient;
   packs: ImagePack[];
-  usage: PackUsage;
+  usage: ImageUsage;
   onItemClick: (id: string) => void;
   useAuthentication?: boolean;
 }) {
   const activeGroupId = useAtomValue(activeGroupIdAtom);
   return (
     <SidebarStack>
-      {usage === PackUsage.Emoticon && <SidebarDivider />}
+      {usage === ImageUsage.Emoticon && <SidebarDivider />}
       {packs.map((pack) => {
-        let label = pack.displayName;
+        let label = pack.meta.name;
         if (!label) label = isUserId(pack.id) ? 'Personal Pack' : mx.getRoom(pack.id)?.name;
         return (
           <SidebarBtn
@@ -384,7 +384,10 @@ function ImagePackSidebarStack({
                 height: toRem(24),
                 objectFit: 'contain',
               }}
-              src={mxcUrlToHttp(mx, pack.getPackAvatarUrl(usage) ?? '', useAuthentication) || pack.avatarUrl}
+              src={
+                mxcUrlToHttp(mx, pack.getAvatarUrl(usage) ?? '', useAuthentication) ||
+                pack.meta.avatar
+              }
               alt={label || 'Unknown Pack'}
             />
           </SidebarBtn>
@@ -462,130 +465,156 @@ export function SearchEmojiGroup({
   tab: EmojiBoardTab;
   label: string;
   id: string;
-  emojis: Array<ExtendedPackImage | IEmoji>;
+  emojis: Array<PackImageReader | IEmoji>;
   useAuthentication?: boolean;
 }) {
   return (
     <EmojiGroup key={id} id={id} label={label}>
       {tab === EmojiBoardTab.Emoji
-        ? searchResult.sort((a, b) => a.shortcode.localeCompare(b.shortcode)).map((emoji) =>
-          'unicode' in emoji ? (
-            <EmojiItem
-              key={emoji.unicode}
-              label={emoji.label}
-              type={EmojiType.Emoji}
-              data={emoji.unicode}
-              shortcode={emoji.shortcode}
-            >
-              {emoji.unicode}
-            </EmojiItem>
-          ) : (
-            <EmojiItem
-              key={emoji.shortcode}
-              label={emoji.body || emoji.shortcode}
-              type={EmojiType.CustomEmoji}
-              data={emoji.url}
-              shortcode={emoji.shortcode}
-            >
-              <img
-                loading="lazy"
-                className={css.CustomEmojiImg}
-                alt={emoji.body || emoji.shortcode}
-                src={mxcUrlToHttp(mx, emoji.url, useAuthentication) ?? emoji.url}
-              />
-            </EmojiItem>
-          )
-        )
+        ? searchResult
+            .sort((a, b) => a.shortcode.localeCompare(b.shortcode))
+            .map((emoji) =>
+              'unicode' in emoji ? (
+                <EmojiItem
+                  key={emoji.unicode}
+                  label={emoji.label}
+                  type={EmojiType.Emoji}
+                  data={emoji.unicode}
+                  shortcode={emoji.shortcode}
+                >
+                  {emoji.unicode}
+                </EmojiItem>
+              ) : (
+                <EmojiItem
+                  key={emoji.shortcode}
+                  label={emoji.body || emoji.shortcode}
+                  type={EmojiType.CustomEmoji}
+                  data={emoji.url}
+                  shortcode={emoji.shortcode}
+                >
+                  <img
+                    loading="lazy"
+                    className={css.CustomEmojiImg}
+                    alt={emoji.body || emoji.shortcode}
+                    src={mxcUrlToHttp(mx, emoji.url, useAuthentication) ?? emoji.url}
+                  />
+                </EmojiItem>
+              )
+            )
         : searchResult.map((emoji) =>
-          'unicode' in emoji ? null : (
-            <StickerItem
-              key={emoji.shortcode}
-              label={emoji.body || emoji.shortcode}
-              type={EmojiType.Sticker}
-              data={emoji.url}
-              shortcode={emoji.shortcode}
-            >
-              <img
-                loading="lazy"
-                className={css.StickerImg}
-                alt={emoji.body || emoji.shortcode}
-                src={mxcUrlToHttp(mx, emoji.url, useAuthentication) ?? emoji.url}
-              />
-            </StickerItem>
-          )
-        )}
+            'unicode' in emoji ? null : (
+              <StickerItem
+                key={emoji.shortcode}
+                label={emoji.body || emoji.shortcode}
+                type={EmojiType.Sticker}
+                data={emoji.url}
+                shortcode={emoji.shortcode}
+              >
+                <img
+                  loading="lazy"
+                  className={css.StickerImg}
+                  alt={emoji.body || emoji.shortcode}
+                  src={mxcUrlToHttp(mx, emoji.url, useAuthentication) ?? emoji.url}
+                />
+              </StickerItem>
+            )
+          )}
     </EmojiGroup>
   );
 }
 
 export const CustomEmojiGroups = memo(
-  ({ mx, groups, useAuthentication }: { mx: MatrixClient; groups: ImagePack[]; useAuthentication?: boolean }) => (
+  ({
+    mx,
+    groups,
+    useAuthentication,
+  }: {
+    mx: MatrixClient;
+    groups: ImagePack[];
+    useAuthentication?: boolean;
+  }) => (
     <>
       {groups.map((pack) => (
-        <EmojiGroup key={pack.id} id={pack.id} label={pack.displayName || 'Unknown'}>
-          {pack.getEmojis().sort((a, b) => a.shortcode.localeCompare(b.shortcode)).map((image) => (
-            <EmojiItem
-              key={image.shortcode}
-              label={image.body || image.shortcode}
-              type={EmojiType.CustomEmoji}
-              data={image.url}
-              shortcode={image.shortcode}
-            >
-              <img
-                loading="lazy"
-                className={css.CustomEmojiImg}
-                alt={image.body || image.shortcode}
-                src={mxcUrlToHttp(mx, image.url, useAuthentication) ?? image.url}
-              />
-            </EmojiItem>
-          ))}
+        <EmojiGroup key={pack.id} id={pack.id} label={pack.meta.name || 'Unknown'}>
+          {pack
+            .getImages(ImageUsage.Emoticon)
+            .sort((a, b) => a.shortcode.localeCompare(b.shortcode))
+            .map((image) => (
+              <EmojiItem
+                key={image.shortcode}
+                label={image.body || image.shortcode}
+                type={EmojiType.CustomEmoji}
+                data={image.url}
+                shortcode={image.shortcode}
+              >
+                <img
+                  loading="lazy"
+                  className={css.CustomEmojiImg}
+                  alt={image.body || image.shortcode}
+                  src={mxcUrlToHttp(mx, image.url, useAuthentication) ?? image.url}
+                />
+              </EmojiItem>
+            ))}
         </EmojiGroup>
       ))}
     </>
   )
 );
 
-export const StickerGroups = memo(({ mx, groups, useAuthentication }: { mx: MatrixClient; groups: ImagePack[]; useAuthentication?: boolean }) => (
-  <>
-    {groups.length === 0 && (
-      <Box
-        style={{ padding: `${toRem(60)} ${config.space.S500}` }}
-        alignItems="Center"
-        justifyContent="Center"
-        direction="Column"
-        gap="300"
-      >
-        <Icon size="600" src={Icons.Sticker} />
-        <Box direction="Inherit">
-          <Text align="Center">No Sticker Packs!</Text>
-          <Text priority="300" align="Center" size="T200">
-            Add stickers from user, room or space settings.
-          </Text>
+export const StickerGroups = memo(
+  ({
+    mx,
+    groups,
+    useAuthentication,
+  }: {
+    mx: MatrixClient;
+    groups: ImagePack[];
+    useAuthentication?: boolean;
+  }) => (
+    <>
+      {groups.length === 0 && (
+        <Box
+          style={{ padding: `${toRem(60)} ${config.space.S500}` }}
+          alignItems="Center"
+          justifyContent="Center"
+          direction="Column"
+          gap="300"
+        >
+          <Icon size="600" src={Icons.Sticker} />
+          <Box direction="Inherit">
+            <Text align="Center">No Sticker Packs!</Text>
+            <Text priority="300" align="Center" size="T200">
+              Add stickers from user, room or space settings.
+            </Text>
+          </Box>
         </Box>
-      </Box>
-    )}
-    {groups.map((pack) => (
-      <EmojiGroup key={pack.id} id={pack.id} label={pack.displayName || 'Unknown'}>
-        {pack.getStickers().sort((a, b) => a.shortcode.localeCompare(b.shortcode)).map((image) => (
-          <StickerItem
-            key={image.shortcode}
-            label={image.body || image.shortcode}
-            type={EmojiType.Sticker}
-            data={image.url}
-            shortcode={image.shortcode}
-          >
-            <img
-              loading="lazy"
-              className={css.StickerImg}
-              alt={image.body || image.shortcode}
-              src={mxcUrlToHttp(mx, image.url, useAuthentication) ?? image.url}
-            />
-          </StickerItem>
-        ))}
-      </EmojiGroup>
-    ))}
-  </>
-));
+      )}
+      {groups.map((pack) => (
+        <EmojiGroup key={pack.id} id={pack.id} label={pack.meta.name || 'Unknown'}>
+          {pack
+            .getImages(ImageUsage.Sticker)
+            .sort((a, b) => a.shortcode.localeCompare(b.shortcode))
+            .map((image) => (
+              <StickerItem
+                key={image.shortcode}
+                label={image.body || image.shortcode}
+                type={EmojiType.Sticker}
+                data={image.url}
+                shortcode={image.shortcode}
+              >
+                <img
+                  loading="lazy"
+                  className={css.StickerImg}
+                  alt={image.body || image.shortcode}
+                  src={mxcUrlToHttp(mx, image.url, useAuthentication) ?? image.url}
+                />
+              </StickerItem>
+            ))}
+        </EmojiGroup>
+      ))}
+    </>
+  )
+);
 
 export const NativeEmojiGroups = memo(
   ({ groups, labels }: { groups: IEmojiGroup[]; labels: IEmojiGroupLabels }) => (
@@ -609,7 +638,7 @@ export const NativeEmojiGroups = memo(
   )
 );
 
-const getSearchListItemStr = (item: ExtendedPackImage | IEmoji) => {
+const getSearchListItemStr = (item: PackImageReader | IEmoji) => {
   const shortcode = `:${item.shortcode}:`;
   if ('body' in item) {
     return [shortcode, item.body ?? ''];
@@ -646,14 +675,14 @@ export function EmojiBoard({
 }) {
   const emojiTab = tab === EmojiBoardTab.Emoji;
   const stickerTab = tab === EmojiBoardTab.Sticker;
-  const usage = emojiTab ? PackUsage.Emoticon : PackUsage.Sticker;
+  const usage = emojiTab ? ImageUsage.Emoticon : ImageUsage.Sticker;
 
   const setActiveGroupId = useSetAtom(activeGroupIdAtom);
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
   const emojiGroupLabels = useEmojiGroupLabels();
   const emojiGroupIcons = useEmojiGroupIcons();
-  const imagePacks = useRelevantImagePacks(mx, usage, imagePackRooms);
+  const imagePacks = useRelevantImagePacks(usage, imagePackRooms);
   const recentEmojis = useRecentEmoji(mx, 21);
 
   const contentScrollRef = useRef<HTMLDivElement>(null);
@@ -661,8 +690,8 @@ export function EmojiBoard({
   const emojiPreviewTextRef = useRef<HTMLParagraphElement>(null);
 
   const searchList = useMemo(() => {
-    let list: Array<ExtendedPackImage | IEmoji> = [];
-    list = list.concat(imagePacks.flatMap((pack) => pack.getImagesFor(usage)));
+    let list: Array<PackImageReader | IEmoji> = [];
+    list = list.concat(imagePacks.flatMap((pack) => pack.getImages(usage)));
     if (emojiTab) list = list.concat(emojis);
     return list;
   }, [emojiTab, usage, imagePacks]);
@@ -688,7 +717,7 @@ export function EmojiBoard({
   const syncActiveGroupId = useCallback(() => {
     const targetEl = contentScrollRef.current;
     if (!targetEl) return;
-    const groupEls = [...targetEl.querySelectorAll('div[data-group-id]')] as HTMLElement[];
+    const groupEls = Array.from(targetEl.querySelectorAll('div[data-group-id]')) as HTMLElement[];
     const groupEl = groupEls.find((el) => isIntersectingScrollView(targetEl, el));
     const groupId = groupEl?.getAttribute('data-group-id') ?? undefined;
     setActiveGroupId(groupId);
@@ -735,7 +764,10 @@ export function EmojiBoard({
       } else if (emojiInfo.type === EmojiType.CustomEmoji && emojiPreviewRef.current) {
         const img = document.createElement('img');
         img.className = css.CustomEmojiImg;
-        img.setAttribute('src', mxcUrlToHttp(mx, emojiInfo.data, useAuthentication) || emojiInfo.data);
+        img.setAttribute(
+          'src',
+          mxcUrlToHttp(mx, emojiInfo.data, useAuthentication) || emojiInfo.data
+        );
         img.setAttribute('alt', emojiInfo.shortcode);
         emojiPreviewRef.current.textContent = '';
         emojiPreviewRef.current.appendChild(img);
@@ -903,8 +935,16 @@ export function EmojiBoard({
               {emojiTab && recentEmojis.length > 0 && (
                 <RecentEmojiGroup id={RECENT_GROUP_ID} label="Recent" emojis={recentEmojis} />
               )}
-              {emojiTab && <CustomEmojiGroups mx={mx} groups={imagePacks} useAuthentication={useAuthentication} />}
-              {stickerTab && <StickerGroups mx={mx} groups={imagePacks} useAuthentication={useAuthentication} />}
+              {emojiTab && (
+                <CustomEmojiGroups
+                  mx={mx}
+                  groups={imagePacks}
+                  useAuthentication={useAuthentication}
+                />
+              )}
+              {stickerTab && (
+                <StickerGroups mx={mx} groups={imagePacks} useAuthentication={useAuthentication} />
+              )}
               {emojiTab && <NativeEmojiGroups groups={emojiGroups} labels={emojiGroupLabels} />}
             </Box>
           </Scroll>
