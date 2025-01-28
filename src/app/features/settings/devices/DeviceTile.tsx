@@ -229,7 +229,7 @@ export function DeviceDeleteBtn({
 
 type DeviceTileProps = {
   device: IMyDevice;
-  deleted: boolean;
+  deleted?: boolean;
   refreshDeviceList: () => Promise<void>;
   disabled?: boolean;
   options?: ReactNode;
