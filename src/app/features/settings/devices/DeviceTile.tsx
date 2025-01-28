@@ -1,4 +1,4 @@
-import React, { FormEventHandler, useCallback, useEffect, useState } from 'react';
+import React, { FormEventHandler, ReactNode, useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Text,
@@ -11,7 +11,11 @@ import {
   color,
   Spinner,
   toRem,
+  Overlay,
+  OverlayBackdrop,
+  OverlayCenter,
 } from 'folds';
+import FocusTrap from 'focus-trap-react';
 import { IMyDevice, MatrixError } from 'matrix-js-sdk';
 import { SettingTile } from '../../../components/setting-tile';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
@@ -20,6 +24,8 @@ import { BreakWord } from '../../../styles/Text.css';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { SequenceCard } from '../../../components/sequence-card';
 import { SequenceCardStyle } from '../styles.css';
+import { LogoutDialog } from '../../../components/LogoutDialog';
+import { stopPropagation } from '../../../utils/keyboard';
 
 export function DeviceTilePlaceholder() {
   return (
@@ -157,19 +163,83 @@ function DeviceRename({ device, onCancel, onRename, refreshDeviceList }: DeviceR
   );
 }
 
+export function DeviceLogoutBtn() {
+  const [prompt, setPrompt] = useState(false);
+
+  const handleClose = () => setPrompt(false);
+
+  return (
+    <>
+      <Chip variant="Critical" fill="Soft" radii="Pill" outlined onClick={() => setPrompt(true)}>
+        <Text size="B300">Logout</Text>
+      </Chip>
+      {prompt && (
+        <Overlay open backdrop={<OverlayBackdrop />}>
+          <OverlayCenter>
+            <FocusTrap
+              focusTrapOptions={{
+                onDeactivate: handleClose,
+                clickOutsideDeactivates: true,
+                escapeDeactivates: stopPropagation,
+              }}
+            >
+              <LogoutDialog handleClose={handleClose} />
+            </FocusTrap>
+          </OverlayCenter>
+        </Overlay>
+      )}
+    </>
+  );
+}
+
+type DeviceDeleteBtnProps = {
+  deviceId: string;
+  deleted: boolean;
+  onDeleteToggle: (deviceId: string) => void;
+  disabled?: boolean;
+};
+export function DeviceDeleteBtn({
+  deviceId,
+  deleted,
+  onDeleteToggle,
+  disabled,
+}: DeviceDeleteBtnProps) {
+  return deleted ? (
+    <Chip
+      variant="Critical"
+      fill="None"
+      radii="Pill"
+      onClick={() => onDeleteToggle(deviceId)}
+      disabled={disabled}
+    >
+      <Text size="B300">Undo</Text>
+    </Chip>
+  ) : (
+    <Chip
+      variant="Secondary"
+      fill="None"
+      radii="Pill"
+      onClick={() => onDeleteToggle(deviceId)}
+      disabled={disabled}
+    >
+      <Icon size="50" src={Icons.Delete} />
+    </Chip>
+  );
+}
+
 type DeviceTileProps = {
   device: IMyDevice;
   deleted: boolean;
-  onDeleteToggle: (deviceId: string) => void;
   refreshDeviceList: () => Promise<void>;
   disabled?: boolean;
+  options?: ReactNode;
 };
 export function DeviceTile({
   device,
   deleted,
-  onDeleteToggle,
   refreshDeviceList,
   disabled,
+  options,
 }: DeviceTileProps) {
   const activeTs = device.last_seen_ts;
   const [details, setDetails] = useState(false);
@@ -195,36 +265,16 @@ export function DeviceTile({
         after={
           !edit && (
             <Box shrink="No" alignItems="Center" gap="200">
-              {deleted ? (
+              {options}
+              {!deleted && (
                 <Chip
-                  variant="Critical"
-                  fill="None"
+                  variant="Secondary"
                   radii="Pill"
-                  onClick={() => onDeleteToggle?.(device.device_id)}
+                  onClick={() => setEdit(true)}
                   disabled={disabled}
                 >
-                  <Text size="B300">Undo</Text>
+                  <Text size="B300">Edit</Text>
                 </Chip>
-              ) : (
-                <>
-                  <Chip
-                    variant="Secondary"
-                    fill="None"
-                    radii="Pill"
-                    onClick={() => onDeleteToggle?.(device.device_id)}
-                    disabled={disabled}
-                  >
-                    <Icon size="50" src={Icons.Delete} />
-                  </Chip>
-                  <Chip
-                    variant="Secondary"
-                    radii="Pill"
-                    onClick={() => setEdit(true)}
-                    disabled={disabled}
-                  >
-                    <Text size="B300">Edit</Text>
-                  </Chip>
-                </>
               )}
             </Box>
           )

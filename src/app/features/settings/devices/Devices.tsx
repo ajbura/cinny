@@ -11,7 +11,7 @@ import { AsyncState, AsyncStatus, useAsync } from '../../../hooks/useAsyncCallba
 import { ActionUIA, ActionUIAFlowsLoader } from '../../../components/ActionUIA';
 import { useUIAMatrixError } from '../../../hooks/useUIAFlows';
 import { LocalBackup } from './LocalBackup';
-import { DeviceTile, DeviceTilePlaceholder } from './DeviceTile';
+import { DeviceDeleteBtn, DeviceLogoutBtn, DeviceTile, DeviceTilePlaceholder } from './DeviceTile';
 
 function DevicesPlaceholder() {
   return (
@@ -184,7 +184,7 @@ export function Devices({ requestClose }: DevicesProps) {
                     after={
                       <Button size="300" radii="300">
                         <Text as="span" size="B300">
-                          Setup
+                          Activate
                         </Text>
                       </Button>
                     }
@@ -203,9 +203,9 @@ export function Devices({ requestClose }: DevicesProps) {
                     <DeviceTile
                       device={currentDevice}
                       deleted={deleted.has(currentDevice.device_id)}
-                      onDeleteToggle={handleToggleDelete}
                       refreshDeviceList={refreshDeviceList}
                       disabled={deleting}
+                      options={<DeviceLogoutBtn />}
                     />
                   </SequenceCard>
                 ) : (
@@ -232,9 +232,16 @@ export function Devices({ requestClose }: DevicesProps) {
                         <DeviceTile
                           device={device}
                           deleted={deleted.has(device.device_id)}
-                          onDeleteToggle={handleToggleDelete}
                           refreshDeviceList={refreshDeviceList}
                           disabled={deleting}
+                          options={
+                            <DeviceDeleteBtn
+                              deviceId={device.device_id}
+                              deleted={deleted.has(device.device_id)}
+                              onDeleteToggle={handleToggleDelete}
+                              disabled={deleting}
+                            />
+                          }
                         />
                       </SequenceCard>
                     ))}
