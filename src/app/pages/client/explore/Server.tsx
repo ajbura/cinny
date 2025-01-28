@@ -32,7 +32,7 @@ import FocusTrap from 'focus-trap-react';
 import { useAtomValue } from 'jotai';
 import { useQuery } from '@tanstack/react-query';
 import { MatrixClient, Method, RoomType } from 'matrix-js-sdk';
-import { Page, PageContent, PageContentCenter, PageHeader } from '../../../components/page';
+import { Page, PageContent, PageContentCenter, PageHeader, PageRootFloat } from '../../../components/page';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { RoomTopicViewer } from '../../../components/room-topic-viewer';
 import { RoomCard, RoomCardBase, RoomCardGrid } from '../../../components/room-card';
@@ -45,6 +45,9 @@ import { getMxIdServer } from '../../../utils/matrix';
 import { stopPropagation } from '../../../utils/keyboard';
 import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { BackRouteHandler } from '../../../components/BackRouteHandler';
+import { useSlideMenu } from '../../../hooks/useSlideMenu';
+import { SlideMenuChild } from '../../../components/SlideMenuChild';
+import { SidebarNav } from '../SidebarNav';
 
 const useServerSearchParams = (searchParams: URLSearchParams): ExploreServerPathSearchParams =>
   useMemo(
@@ -356,6 +359,7 @@ export function PublicRooms() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const roomTypeFilters = useRoomTypeFilters();
+  const { offset, offsetOverride, onTouchStart, onTouchEnd, onTouchMove } = useSlideMenu();
 
   const currentLimit: number = useMemo(() => {
     const limitParam = serverSearchParams.limit;
@@ -516,7 +520,7 @@ export function PublicRooms() {
           </>
         )}
       </PageHeader>
-      <Box grow="Yes">
+      <Box grow="Yes" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} onTouchMove={onTouchMove}>
         <Scroll ref={scrollRef} hideTrack visibility="Hover">
           <PageContent>
             <PageContentCenter>
@@ -661,6 +665,14 @@ export function PublicRooms() {
           </PageContent>
         </Scroll>
       </Box>
+      {/* Create a slide menu offscreen for mobile. Same for all other slide menus. */}
+      {screenSize === ScreenSize.Mobile && <PageRootFloat style={{
+        transform: `translateX(${offsetOverride ? 0 : (-window.innerWidth + offset[0])}px)`,
+        transition: offset[0] ? "none" : ""
+      }}>
+        <SidebarNav />
+        <SlideMenuChild />
+      </PageRootFloat>}
     </Page>
   );
 }

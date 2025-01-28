@@ -18,7 +18,7 @@ import {
 import { useAtomValue } from 'jotai';
 import FocusTrap from 'focus-trap-react';
 import { MatrixError, Room } from 'matrix-js-sdk';
-import { Page, PageContent, PageContentCenter, PageHeader } from '../../../components/page';
+import { Page, PageContent, PageContentCenter, PageHeader, PageRootFloat } from '../../../components/page';
 import { useDirectInvites, useRoomInvites, useSpaceInvites } from '../../../state/hooks/inviteList';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { allInvitesAtom } from '../../../state/room-list/inviteList';
@@ -43,6 +43,9 @@ import { useRoomTopic } from '../../../hooks/useRoomMeta';
 import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { BackRouteHandler } from '../../../components/BackRouteHandler';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { useSlideMenu } from '../../../hooks/useSlideMenu';
+import { SlideMenuChild } from '../../../components/SlideMenuChild';
+import { SidebarNav } from '../SidebarNav';
 
 const COMPACT_CARD_WIDTH = 548;
 
@@ -214,6 +217,8 @@ export function Invites() {
 
   const { navigateRoom, navigateSpace } = useRoomNavigate();
 
+  const { offset, offsetOverride, onTouchStart, onTouchEnd, onTouchMove } = useSlideMenu();
+
   const renderInvite = (roomId: string, direct: boolean, handleNavigate: (rId: string) => void) => {
     const room = mx.getRoom(roomId);
     if (!room) return null;
@@ -253,7 +258,7 @@ export function Invites() {
           <Box grow="Yes" basis="No" />
         </Box>
       </PageHeader>
-      <Box grow="Yes">
+      <Box grow="Yes" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} onTouchMove={onTouchMove}>
         <Scroll hideTrack visibility="Hover">
           <PageContent>
             <PageContentCenter>
@@ -304,6 +309,14 @@ export function Invites() {
           </PageContent>
         </Scroll>
       </Box>
+      {/* Create a slide menu offscreen for mobile. Same for all other slide menus. */}
+      {screenSize === ScreenSize.Mobile && <PageRootFloat style={{
+        transform: `translateX(${offsetOverride ? 0 : (-window.innerWidth + offset[0])}px)`,
+        transition: offset[0] ? "none" : ""
+      }}>
+        <SidebarNav />
+        <SlideMenuChild />
+      </PageRootFloat>}
     </Page>
   );
 }

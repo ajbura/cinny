@@ -3,6 +3,7 @@ import { DefaultReset, config, toRem } from 'folds';
 
 export const MessageBase = style({
   position: 'relative',
+  transition: 'transform ease .25s'
 });
 
 export const MessageOptionsBase = style([

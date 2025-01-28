@@ -26,7 +26,7 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { HTMLReactParserOptions } from 'html-react-parser';
 import { Opts as LinkifyOpts } from 'linkifyjs';
-import { Page, PageContent, PageContentCenter, PageHeader } from '../../../components/page';
+import { Page, PageContent, PageContentCenter, PageHeader, PageRootFloat } from '../../../components/page';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { getMxIdLocalPart, mxcUrlToHttp } from '../../../utils/matrix';
 import { InboxNotificationsPathSearchParams } from '../../paths';
@@ -82,6 +82,9 @@ import { useSpoilerClickHandler } from '../../../hooks/useSpoilerClickHandler';
 import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { BackRouteHandler } from '../../../components/BackRouteHandler';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { useSlideMenu } from '../../../hooks/useSlideMenu';
+import { SlideMenuChild } from '../../../components/SlideMenuChild';
+import { SidebarNav } from '../SidebarNav';
 
 type RoomNotificationsGroup = {
   roomId: string;
@@ -506,6 +509,7 @@ export function Notifications() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollTopAnchorRef = useRef<HTMLDivElement>(null);
   const [refreshIntervalTime, setRefreshIntervalTime] = useState(DEFAULT_REFRESH_MS);
+  const { offset, offsetOverride, onTouchStart, onTouchEnd, onTouchMove } = useSlideMenu();
 
   const onlyHighlight = notificationsSearchParams.only === 'highlight';
   const setOnlyHighlighted = (highlight: boolean) => {
@@ -587,7 +591,7 @@ export function Notifications() {
         </Box>
       </PageHeader>
 
-      <Box style={{ position: 'relative' }} grow="Yes">
+      <Box style={{ position: 'relative' }} grow="Yes" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} onTouchMove={onTouchMove}>
         <Scroll ref={scrollRef} hideTrack visibility="Hover">
           <PageContent>
             <PageContentCenter>
@@ -711,6 +715,14 @@ export function Notifications() {
           </PageContent>
         </Scroll>
       </Box>
+      {/* Create a slide menu offscreen for mobile. Same for all other slide menus. */}
+      {screenSize === ScreenSize.Mobile && <PageRootFloat style={{
+        transform: `translateX(${offsetOverride ? 0 : (-window.innerWidth + offset[0])}px)`,
+        transition: offset[0] ? "none" : ""
+      }}>
+        <SidebarNav />
+        <SlideMenuChild />
+      </PageRootFloat>}
     </Page>
   );
 }

@@ -76,6 +76,7 @@ import { getViaServers } from '../../../plugins/via-servers';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
 import { useRoomPinnedEvents } from '../../../hooks/useRoomPinnedEvents';
 import { StateEvent } from '../../../../types/matrix/room';
+import { useTouchOffset } from '../../../hooks/useTouchOffset';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -666,7 +667,7 @@ export type MessageProps = {
   messageSpacing: MessageSpacing;
   onUserClick: MouseEventHandler<HTMLButtonElement>;
   onUsernameClick: MouseEventHandler<HTMLButtonElement>;
-  onReplyClick: MouseEventHandler<HTMLButtonElement>;
+  onReply: (replyId: string) => void;
   onEditId?: (eventId?: string) => void;
   onReactionToggle: (targetEventId: string, key: string, shortcode?: string) => void;
   reply?: ReactNode;
@@ -690,7 +691,7 @@ export const Message = as<'div', MessageProps>(
       messageSpacing,
       onUserClick,
       onUsernameClick,
-      onReplyClick,
+      onReply,
       onReactionToggle,
       onEditId,
       reply,
@@ -708,6 +709,21 @@ export const Message = as<'div', MessageProps>(
     const { focusWithinProps } = useFocusWithin({ onFocusWithinChange: setHover });
     const [menuAnchor, setMenuAnchor] = useState<RectCords>();
     const [emojiBoardAnchor, setEmojiBoardAnchor] = useState<RectCords>();
+    // Swipe left gesture that, if it is pulled to the left by 20% of screen width, trigger a reply
+    const { offset, onTouchStart, onTouchEnd, onTouchMove } = useTouchOffset({ offsetLimit: [-0.25 * window.innerWidth, 0, 0, 0], touchEndCallback: ([x]) => {
+      if (x < -0.2 * window.innerWidth)
+        onReply(mEvent.getId()!);
+    }});
+
+    // Wrapper of the new onReply for the old onReplyClick
+    const onReplyClick: MouseEventHandler<HTMLButtonElement> = useCallback((evt) => {
+      const replyId = evt.currentTarget.getAttribute('data-event-id');
+      if (!replyId) {
+        console.warn('Button should have "data-event-id" attribute!');
+        return;
+      }
+      onReply(replyId);
+    }, []);
 
     const senderDisplayName =
       getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId;
@@ -838,6 +854,10 @@ export const Message = as<'div', MessageProps>(
         collapse={collapse}
         highlight={highlight}
         selected={!!menuAnchor || !!emojiBoardAnchor}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        onTouchMove={onTouchMove}
+        style={{ transform: `translateX(${offset[0]}px)`, transition: offset[0] ? "none" : "" }}
         {...props}
         {...hoverProps}
         {...focusWithinProps}

@@ -13,6 +13,10 @@ import { useKeyDown } from '../../hooks/useKeyDown';
 import { markAsRead } from '../../../client/action/notifications';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useRoomMembers } from '../../hooks/useRoomMembers';
+import { PageRootFloat } from '../../components/page';
+import { SidebarNav } from '../../pages/client/SidebarNav';
+import { SlideMenuChild } from '../../components/SlideMenuChild';
+import { useSlideMenu } from '../../hooks/useSlideMenu';
 
 export function Room() {
   const { eventId } = useParams();
@@ -23,6 +27,8 @@ export function Room() {
   const screenSize = useScreenSizeContext();
   const powerLevels = usePowerLevels(room);
   const members = useRoomMembers(mx, room.roomId);
+
+  const { offset, offsetOverride, onTouchStart, onTouchEnd, onTouchMove } = useSlideMenu();
 
   useKeyDown(
     window,
@@ -38,7 +44,7 @@ export function Room() {
 
   return (
     <PowerLevelsContextProvider value={powerLevels}>
-      <Box grow="Yes">
+      <Box grow="Yes" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} onTouchMove={onTouchMove}>
         <RoomView room={room} eventId={eventId} />
         {screenSize === ScreenSize.Desktop && isDrawer && (
           <>
@@ -47,6 +53,14 @@ export function Room() {
           </>
         )}
       </Box>
+      {/* Create a slide menu offscreen for mobile. Same for all other slide menus. */}
+      {screenSize === ScreenSize.Mobile && <PageRootFloat style={{
+        transform: `translateX(${offsetOverride ? 0 : (-window.innerWidth + offset[0])}px)`,
+        transition: offset[0] ? "none" : ""
+      }}>
+        <SidebarNav />
+        <SlideMenuChild />
+      </PageRootFloat>}
     </PowerLevelsContextProvider>
   );
 }
