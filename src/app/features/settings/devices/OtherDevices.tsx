@@ -8,13 +8,18 @@ import { DeviceDeleteBtn, DeviceTile } from './DeviceTile';
 import { AsyncState, AsyncStatus, useAsync } from '../../../hooks/useAsyncCallback';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { useUIAMatrixError } from '../../../hooks/useUIAFlows';
+import { DeviceVerificationStatus } from '../../../components/DeviceVerificationStatus';
+import { StartVerificationTile } from './Verificaton';
+import { VerificationStatus } from '../../../hooks/useDeviceVerificationStatus';
 
 type OtherDevicesProps = {
   devices: IMyDevice[];
   refreshDeviceList: () => Promise<void>;
+  verified?: boolean;
 };
-export function OtherDevices({ devices, refreshDeviceList }: OtherDevicesProps) {
+export function OtherDevices({ devices, refreshDeviceList, verified }: OtherDevicesProps) {
   const mx = useMatrixClient();
+  const crypto = mx.getCrypto();
   const [deleted, setDeleted] = useState<Set<string>>(new Set());
 
   const handleToggleDelete = useCallback((deviceId: string) => {
@@ -92,6 +97,17 @@ export function OtherDevices({ devices, refreshDeviceList }: OtherDevicesProps) 
                   />
                 }
               />
+              {verified && (
+                <DeviceVerificationStatus
+                  crypto={crypto}
+                  userId={mx.getSafeUserId()}
+                  deviceId={device.device_id}
+                >
+                  {(status) =>
+                    status === VerificationStatus.Unverified && <StartVerificationTile />
+                  }
+                </DeviceVerificationStatus>
+              )}
             </SequenceCard>
           ))}
       </Box>

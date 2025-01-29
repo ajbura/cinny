@@ -9,6 +9,11 @@ import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { LocalBackup } from './LocalBackup';
 import { DeviceLogoutBtn, DeviceTile, DeviceTilePlaceholder } from './DeviceTile';
 import { OtherDevices } from './OtherDevices';
+import { ManualVerificationTile } from './Verificaton';
+import {
+  useDeviceVerificationStatus,
+  VerificationStatus,
+} from '../../../hooks/useDeviceVerificationStatus';
 
 function DevicesPlaceholder() {
   return (
@@ -24,12 +29,19 @@ type DevicesProps = {
 };
 export function Devices({ requestClose }: DevicesProps) {
   const mx = useMatrixClient();
+  const crypto = mx.getCrypto();
   const [devices, refreshDeviceList] = useDeviceList();
   const currentDeviceId = mx.getDeviceId();
   const currentDevice = currentDeviceId
     ? devices?.find((device) => device.device_id === currentDeviceId)
     : undefined;
   const otherDevices = devices?.filter((device) => device.device_id !== currentDeviceId);
+
+  const verificationStatus = useDeviceVerificationStatus(
+    crypto,
+    mx.getSafeUserId(),
+    currentDevice?.device_id
+  );
 
   return (
     <Page>
@@ -86,6 +98,9 @@ export function Devices({ requestClose }: DevicesProps) {
                       refreshDeviceList={refreshDeviceList}
                       options={<DeviceLogoutBtn />}
                     />
+                    {verificationStatus === VerificationStatus.Unverified && (
+                      <ManualVerificationTile />
+                    )}
                   </SequenceCard>
                 ) : (
                   <DeviceTilePlaceholder />
@@ -93,7 +108,11 @@ export function Devices({ requestClose }: DevicesProps) {
               </Box>
               {devices === null && <DevicesPlaceholder />}
               {otherDevices && (
-                <OtherDevices devices={otherDevices} refreshDeviceList={refreshDeviceList} />
+                <OtherDevices
+                  devices={otherDevices}
+                  refreshDeviceList={refreshDeviceList}
+                  verified={verificationStatus === VerificationStatus.Verified}
+                />
               )}
               <LocalBackup />
             </Box>

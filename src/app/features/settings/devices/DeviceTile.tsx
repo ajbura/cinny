@@ -170,7 +170,7 @@ export function DeviceLogoutBtn() {
 
   return (
     <>
-      <Chip variant="Critical" fill="Soft" radii="Pill" outlined onClick={() => setPrompt(true)}>
+      <Chip variant="Secondary" fill="Soft" radii="Pill" onClick={() => setPrompt(true)}>
         <Text size="B300">Logout</Text>
       </Chip>
       {prompt && (
