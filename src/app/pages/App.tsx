@@ -10,11 +10,13 @@ import { ConfigConfigError, ConfigConfigLoading } from './ConfigConfig';
 import { FeatureCheck } from './FeatureCheck';
 import { createRouter } from './Router';
 import { ScreenSizeProvider, useScreenSize } from '../hooks/useScreenSize';
+import { useSafariCompositionTaggingForKeyDown } from '../hooks/useSafariCompositionTaggingForKeyDown';
 
 const queryClient = new QueryClient();
 
 function App() {
   const screenSize = useScreenSize();
+  useSafariCompositionTaggingForKeyDown(window);
 
   return (
     <ScreenSizeProvider value={screenSize}>

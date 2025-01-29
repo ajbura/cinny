@@ -27,6 +27,7 @@ import { useKeyDown } from '../../hooks/useKeyDown';
 import { openSearch } from '../../../client/action/navigation';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { factoryRoomIdByActivity } from '../../utils/sort';
+import { isComposing } from '../../utils/keyboard.js';
 
 function useVisiblityToggle(setResult) {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,6 +55,9 @@ function useVisiblityToggle(setResult) {
   useKeyDown(
     window,
     useCallback((event) => {
+      if (isComposing(event)) {
+        return;
+      }
       // Ctrl/Cmd +
       if (event.ctrlKey || event.metaKey) {
         // open search modal

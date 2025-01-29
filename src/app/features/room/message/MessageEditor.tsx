@@ -52,6 +52,7 @@ import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { getEditedEvent, trimReplyFromFormattedBody } from '../../../utils/room';
 import { mobileOrTablet } from '../../../utils/user-agent';
+import { isComposing } from '../../../utils/keyboard';
 
 type MessageEditorProps = {
   roomId: string;
@@ -149,6 +150,9 @@ export const MessageEditor = as<'div', MessageEditorProps>(
 
     const handleKeyDown: KeyboardEventHandler = useCallback(
       (evt) => {
+        if (isComposing(evt.nativeEvent)) {
+          return;
+        }
         if (isKeyHotkey('mod+enter', evt) || (!enterForNewline && isKeyHotkey('enter', evt))) {
           evt.preventDefault();
           handleSave();
@@ -163,6 +167,9 @@ export const MessageEditor = as<'div', MessageEditorProps>(
 
     const handleKeyUp: KeyboardEventHandler = useCallback(
       (evt) => {
+        if (isComposing(evt.nativeEvent)) {
+          return;
+        }
         if (isKeyHotkey('escape', evt)) {
           evt.preventDefault();
           return;

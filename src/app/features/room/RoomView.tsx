@@ -19,6 +19,7 @@ import { RoomViewHeader } from './RoomViewHeader';
 import { useKeyDown } from '../../hooks/useKeyDown';
 import { editableActiveElement } from '../../utils/dom';
 import navigation from '../../../client/state/navigation';
+import { isComposing } from '../../utils/keyboard';
 
 const shouldFocusMessageField = (evt: KeyboardEvent): boolean => {
   const { code } = evt;
@@ -76,7 +77,8 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
         if (editableActiveElement()) return;
         if (
           document.body.lastElementChild?.className !== 'ReactModalPortal' ||
-          navigation.isRawModalVisible
+          navigation.isRawModalVisible ||
+          isComposing(evt)
         ) {
           return;
         }

@@ -47,6 +47,7 @@ import { settingsAtom } from '../../state/settings';
 import { isMacOS } from '../../utils/user-agent';
 import { KeySymbol } from '../../utils/key-symbol';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
+import { isComposing } from '../../utils/keyboard.js';
 
 function AppearanceSection() {
   const [, updateState] = useState({});
@@ -78,6 +79,9 @@ function AppearanceSection() {
   };
 
   const handleZoomEnter = (evt) => {
+    if (isComposing(evt.nativeEvent)) {
+      return;
+    }
     if (isKeyHotkey('escape', evt)) {
       evt.stopPropagation();
       setCurrentZoom(pageZoom);
