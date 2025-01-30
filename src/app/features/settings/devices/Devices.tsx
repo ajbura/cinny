@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Box, Text, IconButton, Icon, Icons, Scroll, Button } from 'folds';
 import { Page, PageContent, PageHeader } from '../../../components/page';
 import { SequenceCard } from '../../../components/sequence-card';
@@ -9,9 +9,10 @@ import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { LocalBackup } from './LocalBackup';
 import { DeviceLogoutBtn, DeviceTile, DeviceTilePlaceholder } from './DeviceTile';
 import { OtherDevices } from './OtherDevices';
-import { ManualVerificationTile } from './Verificaton';
+import { ManualVerificationTile, VerificationStatusBadge } from './Verificaton';
 import {
   useDeviceVerificationStatus,
+  useUnverifiedDeviceCount,
   VerificationStatus,
 } from '../../../hooks/useDeviceVerificationStatus';
 
@@ -41,6 +42,16 @@ export function Devices({ requestClose }: DevicesProps) {
     crypto,
     mx.getSafeUserId(),
     currentDevice?.device_id
+  );
+
+  const otherDevicesId = useMemo(
+    () => otherDevices?.map((device) => device.device_id) ?? [],
+    [otherDevices]
+  );
+  const unverifiedDeviceCount = useUnverifiedDeviceCount(
+    crypto,
+    mx.getSafeUserId(),
+    otherDevicesId
   );
 
   return (
@@ -75,11 +86,18 @@ export function Devices({ requestClose }: DevicesProps) {
                     title="Device Verification"
                     description="To verify your identity and grant access to your encrypted messages on another device."
                     after={
-                      <Button size="300" radii="300">
-                        <Text as="span" size="B300">
-                          Activate
-                        </Text>
-                      </Button>
+                      true ? (
+                        <VerificationStatusBadge
+                          verificationStatus={verificationStatus}
+                          otherUnverifiedCount={unverifiedDeviceCount}
+                        />
+                      ) : (
+                        <Button size="300" radii="300">
+                          <Text as="span" size="B300">
+                            Activate
+                          </Text>
+                        </Button>
+                      )
                     }
                   />
                 </SequenceCard>
@@ -111,7 +129,7 @@ export function Devices({ requestClose }: DevicesProps) {
                 <OtherDevices
                   devices={otherDevices}
                   refreshDeviceList={refreshDeviceList}
-                  verified={verificationStatus === VerificationStatus.Verified}
+                  showVerification={verificationStatus === VerificationStatus.Verified}
                 />
               )}
               <LocalBackup />

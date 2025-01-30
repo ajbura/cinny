@@ -1,7 +1,42 @@
 import React, { useState } from 'react';
-import { Box, Button, config, Text } from 'folds';
+import { Badge, Box, Button, config, Spinner, Text } from 'folds';
 import { SettingTile } from '../../../components/setting-tile';
 import * as css from './style.css';
+import { VerificationStatus } from '../../../hooks/useDeviceVerificationStatus';
+
+type VerificationStatusBadgeProps = {
+  verificationStatus: VerificationStatus;
+  otherUnverifiedCount?: number;
+};
+export function VerificationStatusBadge({
+  verificationStatus,
+  otherUnverifiedCount,
+}: VerificationStatusBadgeProps) {
+  if (verificationStatus === VerificationStatus.Unknown || !otherUnverifiedCount) {
+    return <Spinner size="400" variant="Secondary" />;
+  }
+  if (verificationStatus === VerificationStatus.Unverified) {
+    return (
+      <Badge variant="Critical" fill="Solid" size="500">
+        <Text size="L400">Unverified</Text>
+      </Badge>
+    );
+  }
+
+  if (otherUnverifiedCount > 0) {
+    return (
+      <Badge variant="Critical" fill="Solid" size="500">
+        <Text size="L400">{otherUnverifiedCount} Unverified</Text>
+      </Badge>
+    );
+  }
+
+  return (
+    <Badge variant="Success" fill="Solid" size="500">
+      <Text size="L400">Verified</Text>
+    </Badge>
+  );
+}
 
 function LearnStartVerificationFromOtherDevice() {
   return (
@@ -39,7 +74,7 @@ export function ManualVerificationTile() {
     <div className={css.UnverifiedCard}>
       <SettingTile
         after={
-          <Button size="300" variant="Warning" fill="Soft" radii="300">
+          <Button size="300" variant="Critical" fill="Soft" radii="300">
             <Text size="B300">Verify Manually</Text>
           </Button>
         }
@@ -62,7 +97,7 @@ export function StartVerificationTile() {
     <div className={css.UnverifiedCard}>
       <SettingTile
         after={
-          <Button size="300" variant="Warning" radii="300">
+          <Button size="300" variant="Critical" radii="300">
             <Text size="B300">Start Verification</Text>
           </Button>
         }

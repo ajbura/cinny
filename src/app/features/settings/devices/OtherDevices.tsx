@@ -15,9 +15,9 @@ import { VerificationStatus } from '../../../hooks/useDeviceVerificationStatus';
 type OtherDevicesProps = {
   devices: IMyDevice[];
   refreshDeviceList: () => Promise<void>;
-  verified?: boolean;
+  showVerification?: boolean;
 };
-export function OtherDevices({ devices, refreshDeviceList, verified }: OtherDevicesProps) {
+export function OtherDevices({ devices, refreshDeviceList, showVerification }: OtherDevicesProps) {
   const mx = useMatrixClient();
   const crypto = mx.getCrypto();
   const [deleted, setDeleted] = useState<Set<string>>(new Set());
@@ -97,7 +97,7 @@ export function OtherDevices({ devices, refreshDeviceList, verified }: OtherDevi
                   />
                 }
               />
-              {verified && (
+              {showVerification && (
                 <DeviceVerificationStatus
                   crypto={crypto}
                   userId={mx.getSafeUserId()}
