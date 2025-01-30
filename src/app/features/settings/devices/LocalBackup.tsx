@@ -4,7 +4,7 @@ import FileSaver from 'file-saver';
 import { SequenceCard } from '../../../components/sequence-card';
 import { SettingTile } from '../../../components/setting-tile';
 import { SequenceCardStyle } from '../styles.css';
-import { PasswordInput } from '../../../components/password-input/PasswordInput';
+import { PasswordInput } from '../../../components/password-input';
 import { ConfirmPasswordMatch } from '../../../components/ConfirmPasswordMatch';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';

@@ -22,10 +22,10 @@ export type SecretStorageDefaultKeyContent = {
   key: string;
 };
 
-export type SecretStoragePassphrase = {
+export type SecretStoragePassphraseContent = {
   algorithm: string;
   salt: string;
-  iteration: number;
+  iterations: number;
   bits?: number;
 };
 
@@ -34,5 +34,5 @@ export type SecretStorageKeyContent = {
   algorithm: string;
   iv?: string;
   mac?: string;
-  passphrase?: SecretStoragePassphrase;
+  passphrase?: SecretStoragePassphraseContent;
 };
