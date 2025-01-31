@@ -9,12 +9,16 @@ import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { LocalBackup } from './LocalBackup';
 import { DeviceLogoutBtn, DeviceTile, DeviceTilePlaceholder } from './DeviceTile';
 import { OtherDevices } from './OtherDevices';
-import { ManualVerificationTile, VerificationStatusBadge } from './Verificaton';
+import { VerificationStatusBadge, VerifyCurrentDeviceTile } from './Verification';
 import {
   useDeviceVerificationStatus,
   useUnverifiedDeviceCount,
   VerificationStatus,
 } from '../../../hooks/useDeviceVerificationStatus';
+import {
+  useSecretStorageDefaultKeyId,
+  useSecretStorageKeyContent,
+} from '../../../hooks/useSecretStorage';
 
 function DevicesPlaceholder() {
   return (
@@ -54,6 +58,15 @@ export function Devices({ requestClose }: DevicesProps) {
     otherDevicesId
   );
 
+  const defaultSecretStorageKeyId = useSecretStorageDefaultKeyId();
+  const defaultSecretStorageKeyContent = useSecretStorageKeyContent(
+    defaultSecretStorageKeyId ?? ''
+  );
+
+  // TODO: new device add/remove does not update
+  // verified device appear unverified after logout
+  // device verification status doesn't update
+
   return (
     <Page>
       <PageHeader outlined={false}>
@@ -84,7 +97,7 @@ export function Devices({ requestClose }: DevicesProps) {
                 >
                   <SettingTile
                     title="Device Verification"
-                    description="To verify your identity and grant access to your encrypted messages on another device."
+                    description="To verify device identity and grant access to encrypted messages."
                     after={
                       true ? (
                         <VerificationStatusBadge
@@ -116,9 +129,14 @@ export function Devices({ requestClose }: DevicesProps) {
                       refreshDeviceList={refreshDeviceList}
                       options={<DeviceLogoutBtn />}
                     />
-                    {verificationStatus === VerificationStatus.Unverified && (
-                      <ManualVerificationTile />
-                    )}
+                    {verificationStatus === VerificationStatus.Unverified &&
+                      defaultSecretStorageKeyId &&
+                      defaultSecretStorageKeyContent && (
+                        <VerifyCurrentDeviceTile
+                          secretStorageKeyId={defaultSecretStorageKeyId}
+                          secretStorageKeyContent={defaultSecretStorageKeyContent}
+                        />
+                      )}
                   </SequenceCard>
                 ) : (
                   <DeviceTilePlaceholder />

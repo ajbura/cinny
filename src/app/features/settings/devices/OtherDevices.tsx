@@ -9,7 +9,7 @@ import { AsyncState, AsyncStatus, useAsync } from '../../../hooks/useAsyncCallba
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { useUIAMatrixError } from '../../../hooks/useUIAFlows';
 import { DeviceVerificationStatus } from '../../../components/DeviceVerificationStatus';
-import { StartVerificationTile } from './Verificaton';
+import { VerifyOtherDeviceTile } from './Verification';
 import { VerificationStatus } from '../../../hooks/useDeviceVerificationStatus';
 
 type OtherDevicesProps = {
@@ -104,7 +104,7 @@ export function OtherDevices({ devices, refreshDeviceList, showVerification }: O
                   deviceId={device.device_id}
                 >
                   {(status) =>
-                    status === VerificationStatus.Unverified && <StartVerificationTile />
+                    status === VerificationStatus.Unverified && <VerifyOtherDeviceTile />
                   }
                 </DeviceVerificationStatus>
               )}

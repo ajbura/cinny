@@ -9,6 +9,7 @@ import {
 } from '../../types/matrix/accountData';
 import { AsyncStatus, useAsyncCallback } from '../hooks/useAsyncCallback';
 import { useMatrixClient } from '../hooks/useMatrixClient';
+import { useAlive } from '../hooks/useAlive';
 
 type SecretStorageRecoveryPassphraseProps = {
   processing?: boolean;
@@ -23,6 +24,7 @@ export function SecretStorageRecoveryPassphrase({
   onDecodedRecoveryKey,
 }: SecretStorageRecoveryPassphraseProps) {
   const mx = useMatrixClient();
+  const alive = useAlive();
 
   const [driveKeyState, submitPassphrase] = useAsyncCallback<
     Uint8Array,
@@ -65,7 +67,11 @@ export function SecretStorageRecoveryPassphrase({
     if (!recoveryPassphrase) return;
 
     const { salt, iterations, bits } = passphraseContent;
-    submitPassphrase(recoveryPassphrase, salt, iterations, bits);
+    submitPassphrase(recoveryPassphrase, salt, iterations, bits).then(() => {
+      if (alive()) {
+        recoveryPassphraseInput.value = '';
+      }
+    });
   };
 
   return (
@@ -119,6 +125,7 @@ export function SecretStorageRecoveryKey({
   onDecodedRecoveryKey,
 }: SecretStorageRecoveryKeyProps) {
   const mx = useMatrixClient();
+  const alive = useAlive();
 
   const [driveKeyState, submitRecoveryKey] = useAsyncCallback<Uint8Array, Error, [string]>(
     useCallback(
@@ -155,7 +162,11 @@ export function SecretStorageRecoveryKey({
     const recoveryKey = recoveryKeyInput.value.trim();
     if (!recoveryKey) return;
 
-    submitRecoveryKey(recoveryKey);
+    submitRecoveryKey(recoveryKey).then(() => {
+      if (alive()) {
+        recoveryKeyInput.value = '';
+      }
+    });
   };
 
   return (
