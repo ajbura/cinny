@@ -40,7 +40,6 @@ export function Devices({ requestClose }: DevicesProps) {
   const [devices, refreshDeviceList] = useDeviceList();
 
   const [currentDevice, otherDevices] = useSplitCurrentDevice(devices);
-
   const verificationStatus = useDeviceVerificationStatus(
     crypto,
     mx.getSafeUserId(),

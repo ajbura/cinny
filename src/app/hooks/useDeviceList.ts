@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useMemo } from 'react';
 import { IMyDevice } from 'matrix-js-sdk';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { CryptoEvent, CryptoEventHandlerMap } from 'matrix-js-sdk/lib/crypto';
 import { useMatrixClient } from './useMatrixClient';
 
@@ -26,34 +26,29 @@ export function useDeviceList(): [undefined | IMyDevice[], () => Promise<void>] 
     return data.devices ?? [];
   }, [mx]);
 
-  const queryClient = useQueryClient();
-  const { data: deviceList } = useQuery({
+  const { data: deviceList, refetch } = useQuery({
     queryKey: DEVICES_QUERY_KEY,
     queryFn: fetchDevices,
-    staleTime: 5 * 60 * 1000, // 5 min
+    staleTime: 0,
     gcTime: Infinity,
     refetchOnMount: 'always',
   });
+
+  const refreshDeviceList = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
 
   useDeviceListChange(
     useCallback(
       (users) => {
         const userId = mx.getUserId();
         if (userId && users.includes(userId)) {
-          queryClient.refetchQueries({
-            queryKey: DEVICES_QUERY_KEY,
-          });
+          refreshDeviceList();
         }
       },
-      [mx, queryClient]
+      [mx, refreshDeviceList]
     )
   );
-
-  const refreshDeviceList = useCallback(async () => {
-    await queryClient.refetchQueries({
-      queryKey: DEVICES_QUERY_KEY,
-    });
-  }, [queryClient]);
 
   return [deviceList ?? undefined, refreshDeviceList];
 }
