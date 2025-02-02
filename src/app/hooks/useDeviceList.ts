@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { IMyDevice } from 'matrix-js-sdk';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CryptoEvent, CryptoEventHandlerMap } from 'matrix-js-sdk/lib/crypto';
 import { useMatrixClient } from './useMatrixClient';
-import { useAlive } from './useAlive';
 
 export const useDeviceListChange = (
   onChange: CryptoEventHandlerMap[CryptoEvent.DevicesUpdated]
@@ -16,33 +16,44 @@ export const useDeviceListChange = (
   }, [mx, onChange]);
 };
 
+const DEVICES_QUERY_KEY = ['devices'];
+
 export function useDeviceList(): [null | IMyDevice[], () => Promise<void>] {
   const mx = useMatrixClient();
-  const [deviceList, setDeviceList] = useState<IMyDevice[] | null>(null);
-  const alive = useAlive();
 
-  const refreshDeviceList = useCallback(async () => {
+  const fetchDevices = useCallback(async () => {
     const data = await mx.getDevices();
-    if (alive()) {
-      setDeviceList(data.devices || []);
-    }
-  }, [mx, alive]);
+    return data.devices ?? [];
+  }, [mx]);
+
+  const queryClient = useQueryClient();
+  const { data: deviceList } = useQuery({
+    queryKey: DEVICES_QUERY_KEY,
+    queryFn: fetchDevices,
+    staleTime: 5 * 60 * 1000, // 5 min
+    gcTime: Infinity,
+    refetchOnMount: 'always',
+  });
 
   useDeviceListChange(
     useCallback(
       (users) => {
         const userId = mx.getUserId();
         if (userId && users.includes(userId)) {
-          refreshDeviceList();
+          queryClient.refetchQueries({
+            queryKey: DEVICES_QUERY_KEY,
+          });
         }
       },
-      [mx, refreshDeviceList]
+      [mx, queryClient]
     )
   );
 
-  useEffect(() => {
-    refreshDeviceList();
-  }, [refreshDeviceList]);
+  const refreshDeviceList = useCallback(async () => {
+    await queryClient.refetchQueries({
+      queryKey: DEVICES_QUERY_KEY,
+    });
+  }, [queryClient]);
 
-  return [deviceList, refreshDeviceList];
+  return [deviceList ?? null, refreshDeviceList];
 }
