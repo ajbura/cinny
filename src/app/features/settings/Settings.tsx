@@ -11,16 +11,16 @@ import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
 import { UserAvatar } from '../../components/user-avatar';
 import { nameInitials } from '../../utils/common';
 import { Notifications } from './notifications';
+import { Devices } from './devices';
 import { EmojisStickers } from './emojis-stickers';
 import { DeveloperTools } from './developer-tools';
 import { About } from './about';
 
-enum SettingsPages {
+export enum SettingsPages {
   GeneralPage,
   AccountPage,
   NotificationPage,
-  SessionPage,
-  EncryptionPage,
+  DevicesPage,
   EmojisStickersPage,
   DeveloperToolsPage,
   AboutPage,
@@ -51,14 +51,9 @@ const useSettingsMenuItems = (): SettingsMenuItem[] =>
         icon: Icons.Bell,
       },
       {
-        page: SettingsPages.SessionPage,
-        name: 'Sessions',
+        page: SettingsPages.DevicesPage,
+        name: 'Devices',
         icon: Icons.Category,
-      },
-      {
-        page: SettingsPages.EncryptionPage,
-        name: 'Encryption',
-        icon: Icons.ShieldLock,
       },
       {
         page: SettingsPages.EmojisStickersPage,
@@ -170,6 +165,9 @@ export function Settings({ initialPage, requestClose }: SettingsProps) {
       )}
       {activePage === SettingsPages.NotificationPage && (
         <Notifications requestClose={handlePageRequestClose} />
+      )}
+      {activePage === SettingsPages.DevicesPage && (
+        <Devices requestClose={handlePageRequestClose} />
       )}
       {activePage === SettingsPages.EmojisStickersPage && (
         <EmojisStickers requestClose={handlePageRequestClose} />

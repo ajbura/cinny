@@ -19,7 +19,7 @@ import { useAutoDiscoveryInfo } from '../../../hooks/useAutoDiscoveryInfo';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { useAuthServer } from '../../../hooks/useAuthServer';
 import { usePasswordEmail } from '../../../hooks/usePasswordEmail';
-import { PasswordInput } from '../../../components/password-input/PasswordInput';
+import { PasswordInput } from '../../../components/password-input';
 import { ConfirmPasswordMatch } from '../../../components/ConfirmPasswordMatch';
 import { FieldError } from '../FiledError';
 import { UIAFlowOverlay } from '../../../components/UIAFlowOverlay';

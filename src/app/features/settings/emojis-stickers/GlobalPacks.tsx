@@ -474,7 +474,7 @@ export function GlobalPacks({ onViewPack }: GlobalPacksProps) {
                 variant="Success"
                 radii="300"
                 disabled={applyingChanges}
-                before={applyingChanges && <Spinner variant="Success" fill="Soft" size="100" />}
+                before={applyingChanges && <Spinner variant="Success" fill="Solid" size="100" />}
                 onClick={applyChanges}
               >
                 <Text size="B300">Apply Changes</Text>

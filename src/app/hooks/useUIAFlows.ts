@@ -1,4 +1,4 @@
-import { AuthType, IAuthData, UIAFlow } from 'matrix-js-sdk';
+import { AuthType, IAuthData, MatrixError, UIAFlow } from 'matrix-js-sdk';
 import { useCallback, useMemo } from 'react';
 import {
   getSupportedUIAFlows,
@@ -93,4 +93,13 @@ export const useUIAFlow = (authData: IAuthData, uiaFlow: UIAFlow): UIAFlowInterf
     hasStage,
     getStageInfo,
   };
+};
+
+export const useUIAMatrixError = (
+  error?: MatrixError
+): [undefined, undefined] | [IAuthData, undefined] | [undefined, MatrixError] => {
+  if (!error) return [undefined, undefined];
+  if (error.httpStatus === 401) return [error.data as IAuthData, undefined];
+
+  return [undefined, error];
 };

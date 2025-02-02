@@ -20,7 +20,7 @@ import {
   UIAFlow,
   createClient,
 } from 'matrix-js-sdk';
-import { PasswordInput } from '../../../components/password-input/PasswordInput';
+import { PasswordInput } from '../../../components/password-input';
 import {
   getLoginTermUrl,
   getUIAFlowForStages,

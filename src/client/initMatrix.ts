@@ -1,10 +1,7 @@
 import { createClient, MatrixClient, IndexedDBStore, IndexedDBCryptoStore } from 'matrix-js-sdk';
-import Olm from '@matrix-org/olm';
 import { logger } from 'matrix-js-sdk/lib/logger';
 
 import { cryptoCallbacks } from './state/secretStorageKeys';
-
-global.Olm = Olm;
 
 if (import.meta.env.PROD) {
   logger.disableAll();
@@ -24,20 +21,22 @@ export const initClient = async (session: Session): Promise<MatrixClient> => {
     dbName: 'web-sync-store',
   });
 
+  const legacyCryptoStore = new IndexedDBCryptoStore(global.indexedDB, 'crypto-store');
+
   const mx = createClient({
     baseUrl: session.baseUrl,
     accessToken: session.accessToken,
     userId: session.userId,
     store: indexedDBStore,
-    cryptoStore: new IndexedDBCryptoStore(global.indexedDB, 'crypto-store'),
+    cryptoStore: legacyCryptoStore,
     deviceId: session.deviceId,
     timelineSupport: true,
     cryptoCallbacks: cryptoCallbacks as any,
     verificationMethods: ['m.sas.v1'],
   });
 
-  await mx.initCrypto();
   await indexedDBStore.startup();
+  await mx.initRustCrypto();
 
   mx.setGlobalErrorOnUnknownDevices(false);
   mx.setMaxListeners(50);

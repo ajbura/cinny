@@ -33,7 +33,7 @@ import {
   login,
   useLoginComplete,
 } from './loginUtil';
-import { PasswordInput } from '../../../components/password-input/PasswordInput';
+import { PasswordInput } from '../../../components/password-input';
 import { FieldError } from '../FiledError';
 import { getResetPasswordPath } from '../../pathUtils';
 import { stopPropagation } from '../../../utils/keyboard';

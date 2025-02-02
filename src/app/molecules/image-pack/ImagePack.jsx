@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useReducer, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { EventTimeline } from 'matrix-js-sdk';
 import './ImagePack.scss';
 
 import { openReusableDialog } from '../../../client/action/navigation';
@@ -18,6 +19,7 @@ import ImagePackItem from './ImagePackItem';
 import ImagePackUpload from './ImagePackUpload';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { getStateEvent } from '../../utils/room';
 
 const renameImagePackItem = (shortcode) =>
   new Promise((resolve) => {
@@ -76,7 +78,7 @@ function useRoomImagePack(roomId, stateKey) {
   const room = mx.getRoom(roomId);
 
   const pack = useMemo(() => {
-    const packEvent = room.currentState.getStateEvents('im.ponies.room_emotes', stateKey);
+    const packEvent = getStateEvent(room, 'im.ponies.room_emotes', stateKey);
     return ImagePackBuilder.parsePack(packEvent.getId(), packEvent.getContent());
   }, [room, stateKey]);
 
@@ -245,7 +247,10 @@ function ImagePack({ roomId, stateKey, handlePackDelete }) {
   };
 
   const myPowerlevel = room.getMember(mx.getUserId())?.powerLevel || 0;
-  const canChange = room.currentState.hasSufficientPowerLevelFor('state_default', myPowerlevel);
+  const canChange = room
+    .getLiveTimeline()
+    .getState(EventTimeline.FORWARDS)
+    ?.hasSufficientPowerLevelFor('state_default', myPowerlevel);
 
   const handleDeletePack = async () => {
     const isConfirmed = await confirmDialog(
@@ -473,7 +478,7 @@ function ImagePackGlobal() {
           [...roomIdToStateKeys].map(([roomId, stateKeys]) => {
             const room = mx.getRoom(roomId);
             return stateKeys.map((stateKey) => {
-              const data = room.currentState.getStateEvents('im.ponies.room_emotes', stateKey);
+              const data = getStateEvent(room, 'im.ponies.room_emotes', stateKey);
               const pack = ImagePackBuilder.parsePack(data?.getId(), data?.getContent());
               if (!pack) return null;
               return (
