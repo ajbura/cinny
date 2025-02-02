@@ -25,6 +25,7 @@ import {
   useSecretStorageKeyContent,
 } from '../../../hooks/useSecretStorage';
 import { useCrossSigningActive } from '../../../hooks/useCrossSigning';
+import { BackupRestoreTile } from '../../../components/BackupRestore';
 
 function DevicesPlaceholder() {
   return (
@@ -103,7 +104,7 @@ export function Devices({ requestClose }: DevicesProps) {
                       ) : (
                         <Button size="300" radii="300">
                           <Text as="span" size="B300">
-                            Activate
+                            Enable
                           </Text>
                         </Button>
                       )
@@ -136,6 +137,9 @@ export function Devices({ requestClose }: DevicesProps) {
                           secretStorageKeyContent={defaultSecretStorageKeyContent}
                         />
                       )}
+                    {crypto && verificationStatus === VerificationStatus.Verified && (
+                      <BackupRestoreTile crypto={crypto} />
+                    )}
                   </SequenceCard>
                 ) : (
                   <DeviceTilePlaceholder />

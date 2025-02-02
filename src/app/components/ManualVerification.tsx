@@ -13,6 +13,7 @@ import {
   color,
 } from 'folds';
 import FocusTrap from 'focus-trap-react';
+import { useSetAtom } from 'jotai';
 import { stopPropagation } from '../utils/keyboard';
 import { SettingTile } from './setting-tile';
 import { SecretStorageKeyContent } from '../../types/matrix/accountData';
@@ -20,6 +21,7 @@ import { SecretStorageRecoveryKey, SecretStorageRecoveryPassphrase } from './Sec
 import { useMatrixClient } from '../hooks/useMatrixClient';
 import { AsyncStatus, useAsyncCallback } from '../hooks/useAsyncCallback';
 import { storePrivateKey } from '../../client/state/secretStorageKeys';
+import { backupRestoreProgressAtom } from '../state/backupRestore';
 
 export enum ManualVerificationMethod {
   RecoveryPassphrase = 'passphrase',
@@ -121,6 +123,8 @@ export function ManualVerificationTile({
   options,
 }: ManualVerificationTileProps) {
   const mx = useMatrixClient();
+  const setBackupRestoreProgress = useSetAtom(backupRestoreProgressAtom);
+
   const hasPassphrase = !!secretStorageKeyContent.passphrase;
   const [method, setMethod] = useState(
     hasPassphrase
@@ -141,13 +145,13 @@ export function ManualVerificationTile({
       await crypto.bootstrapSecretStorage({});
 
       await crypto.loadSessionBackupPrivateKeyFromSecretStorage();
-      await crypto.restoreKeyBackup({
+      crypto.restoreKeyBackup({
         progressCallback(progress) {
-          console.log(progress);
+          setBackupRestoreProgress(progress);
         },
       });
     },
-    [mx, secretStorageKeyId]
+    [mx, secretStorageKeyId, setBackupRestoreProgress]
   );
 
   const [verifyState, handleDecodedRecoveryKey] = useAsyncCallback<void, Error, [Uint8Array]>(
