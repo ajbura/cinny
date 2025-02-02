@@ -20,15 +20,18 @@ export function BackupRestoreTile({ crypto }: BackupRestoreTileProps) {
     loadBackupInfo();
   }, [loadBackupInfo]);
 
-  const restoreBackup = useCallback(async () => {
-    await crypto.restoreKeyBackup({
-      progressCallback(progress) {
-        setRestoreProgress(progress);
-      },
-    });
-  }, [crypto, setRestoreProgress]);
+  const [restoreState, restoreBackup] = useAsyncCallback(
+    useCallback(async () => {
+      await crypto.restoreKeyBackup({
+        progressCallback(progress) {
+          setRestoreProgress(progress);
+        },
+      });
+    }, [crypto, setRestoreProgress])
+  );
 
   const running =
+    restoreState.status === AsyncStatus.Loading ||
     restoreProgress.status === BackupProgressStatus.Fetching ||
     restoreProgress.status === BackupProgressStatus.Loading;
 

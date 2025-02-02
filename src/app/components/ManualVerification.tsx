@@ -145,7 +145,7 @@ export function ManualVerificationTile({
       await crypto.bootstrapSecretStorage({});
 
       await crypto.loadSessionBackupPrivateKeyFromSecretStorage();
-      crypto.restoreKeyBackup({
+      await crypto.restoreKeyBackup({
         progressCallback(progress) {
           setBackupRestoreProgress(progress);
         },
