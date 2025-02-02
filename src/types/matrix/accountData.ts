@@ -36,3 +36,13 @@ export type SecretStorageKeyContent = {
   mac?: string;
   passphrase?: SecretStoragePassphraseContent;
 };
+
+export type SecretContent = {
+  iv: string;
+  ciphertext: string;
+  mac: string;
+};
+
+export type SecretAccountData = {
+  encrypted: Record<string, SecretContent>;
+};

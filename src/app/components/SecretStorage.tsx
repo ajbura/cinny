@@ -1,4 +1,4 @@
-import React, { FormEventHandler, useCallback, useEffect } from 'react';
+import React, { FormEventHandler, useCallback } from 'react';
 import { Box, Text, Button, Spinner, color } from 'folds';
 import { decodeRecoveryKey } from 'matrix-js-sdk/lib/crypto-api';
 import { deriveKey } from 'matrix-js-sdk/lib/crypto/key_passphrase';
@@ -50,12 +50,6 @@ export function SecretStorageRecoveryPassphrase({
   const drivingKey = driveKeyState.status === AsyncStatus.Loading;
   const loading = drivingKey || processing;
 
-  useEffect(() => {
-    if (driveKeyState.status === AsyncStatus.Success) {
-      onDecodedRecoveryKey(driveKeyState.data);
-    }
-  }, [onDecodedRecoveryKey, driveKeyState]);
-
   const handleSubmit: FormEventHandler<HTMLFormElement> = (evt) => {
     if (loading) return;
     evt.preventDefault();
@@ -67,9 +61,10 @@ export function SecretStorageRecoveryPassphrase({
     if (!recoveryPassphrase) return;
 
     const { salt, iterations, bits } = passphraseContent;
-    submitPassphrase(recoveryPassphrase, salt, iterations, bits).then(() => {
+    submitPassphrase(recoveryPassphrase, salt, iterations, bits).then((decodedRecoveryKey) => {
       if (alive()) {
         recoveryPassphraseInput.value = '';
+        onDecodedRecoveryKey(decodedRecoveryKey);
       }
     });
   };
@@ -147,12 +142,6 @@ export function SecretStorageRecoveryKey({
   const drivingKey = driveKeyState.status === AsyncStatus.Loading;
   const loading = drivingKey || processing;
 
-  useEffect(() => {
-    if (driveKeyState.status === AsyncStatus.Success) {
-      onDecodedRecoveryKey(driveKeyState.data);
-    }
-  }, [onDecodedRecoveryKey, driveKeyState]);
-
   const handleSubmit: FormEventHandler<HTMLFormElement> = (evt) => {
     evt.preventDefault();
 
@@ -162,9 +151,10 @@ export function SecretStorageRecoveryKey({
     const recoveryKey = recoveryKeyInput.value.trim();
     if (!recoveryKey) return;
 
-    submitRecoveryKey(recoveryKey).then(() => {
+    submitRecoveryKey(recoveryKey).then((decodedRecoveryKey) => {
       if (alive()) {
         recoveryKeyInput.value = '';
+        onDecodedRecoveryKey(decodedRecoveryKey);
       }
     });
   };

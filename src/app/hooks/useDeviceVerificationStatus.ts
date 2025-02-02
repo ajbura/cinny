@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { CryptoApi } from 'matrix-js-sdk/lib/crypto-api';
 import { AsyncStatus, useAsyncCallback } from './useAsyncCallback';
 import { verifiedDevice } from '../utils/matrix-crypto';
 import { useAlive } from './useAlive';
 import { fulfilledPromiseSettledResult } from '../utils/common';
+import { useMatrixClient } from './useMatrixClient';
+import { useDeviceListChange } from './useDeviceList';
 
 export enum VerificationStatus {
   Unknown,
@@ -17,11 +19,27 @@ export const useDeviceVerificationStatus = (
   userId: string,
   deviceId: string | undefined
 ): VerificationStatus => {
+  const mx = useMatrixClient();
   const [verificationState, getVerification] = useAsyncCallback(verifiedDevice);
 
-  useEffect(() => {
+  const updateStatus = useCallback(() => {
     if (crypto && deviceId) getVerification(crypto, userId, deviceId);
-  }, [getVerification, userId, crypto, deviceId]);
+  }, [crypto, deviceId, userId, getVerification]);
+
+  useEffect(() => {
+    updateStatus();
+  }, [mx, updateStatus, userId]);
+
+  useDeviceListChange(
+    useCallback(
+      (userIds) => {
+        if (userIds.includes(userId)) {
+          updateStatus();
+        }
+      },
+      [userId, updateStatus]
+    )
+  );
 
   if (verificationState.status === AsyncStatus.Success) {
     if (verificationState.data === null) return VerificationStatus.Unsupported;
@@ -40,27 +58,37 @@ export const useUnverifiedDeviceCount = (
   const [unverifiedCount, setUnverifiedCount] = useState<number>();
   const alive = useAlive();
 
+  const updateCount = useCallback(async () => {
+    let count = 0;
+    if (crypto) {
+      const promises = devices.map((deviceId) => verifiedDevice(crypto, userId, deviceId));
+      const result = await Promise.allSettled(promises);
+      const settledResult = fulfilledPromiseSettledResult(result);
+      settledResult.forEach((status) => {
+        if (status === false) {
+          count += 1;
+        }
+      });
+    }
+    if (alive()) {
+      setUnverifiedCount(count);
+    }
+  }, [crypto, userId, devices, alive]);
+
+  useDeviceListChange(
+    useCallback(
+      (userIds) => {
+        if (userIds.includes(userId)) {
+          updateCount();
+        }
+      },
+      [userId, updateCount]
+    )
+  );
+
   useEffect(() => {
-    const findCount = async () => {
-      if (crypto) {
-        const promises = devices.map((deviceId) => verifiedDevice(crypto, userId, deviceId));
-        const result = await Promise.allSettled(promises);
-        const settledResult = fulfilledPromiseSettledResult(result);
-        return settledResult.reduce((count, status) => {
-          if (status === false) {
-            return count + 1;
-          }
-          return count;
-        }, 0);
-      }
-      return 0;
-    };
-    findCount().then((count) => {
-      if (alive()) {
-        setUnverifiedCount(count);
-      }
-    });
-  }, [alive, crypto, userId, devices]);
+    updateCount();
+  }, [updateCount]);
 
   return unverifiedCount;
 };

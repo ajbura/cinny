@@ -19,6 +19,7 @@ import {
   useSecretStorageDefaultKeyId,
   useSecretStorageKeyContent,
 } from '../../../hooks/useSecretStorage';
+import { useCrossSigningActive } from '../../../hooks/useCrossSigning';
 
 function DevicesPlaceholder() {
   return (
@@ -35,6 +36,7 @@ type DevicesProps = {
 export function Devices({ requestClose }: DevicesProps) {
   const mx = useMatrixClient();
   const crypto = mx.getCrypto();
+  const crossSigningActive = useCrossSigningActive();
   const [devices, refreshDeviceList] = useDeviceList();
   const currentDeviceId = mx.getDeviceId();
   const currentDevice = currentDeviceId
@@ -62,10 +64,6 @@ export function Devices({ requestClose }: DevicesProps) {
   const defaultSecretStorageKeyContent = useSecretStorageKeyContent(
     defaultSecretStorageKeyId ?? ''
   );
-
-  // TODO: new device add/remove does not update
-  // verified device appear unverified after logout
-  // device verification status doesn't update
 
   return (
     <Page>
@@ -99,7 +97,7 @@ export function Devices({ requestClose }: DevicesProps) {
                     title="Device Verification"
                     description="To verify device identity and grant access to encrypted messages."
                     after={
-                      true ? (
+                      crossSigningActive ? (
                         <VerificationStatusBadge
                           verificationStatus={verificationStatus}
                           otherUnverifiedCount={unverifiedDeviceCount}
@@ -129,7 +127,8 @@ export function Devices({ requestClose }: DevicesProps) {
                       refreshDeviceList={refreshDeviceList}
                       options={<DeviceLogoutBtn />}
                     />
-                    {verificationStatus === VerificationStatus.Unverified &&
+                    {crossSigningActive &&
+                      verificationStatus === VerificationStatus.Unverified &&
                       defaultSecretStorageKeyId &&
                       defaultSecretStorageKeyContent && (
                         <VerifyCurrentDeviceTile
@@ -147,7 +146,9 @@ export function Devices({ requestClose }: DevicesProps) {
                 <OtherDevices
                   devices={otherDevices}
                   refreshDeviceList={refreshDeviceList}
-                  showVerification={verificationStatus === VerificationStatus.Verified}
+                  showVerification={
+                    crossSigningActive && verificationStatus === VerificationStatus.Verified
+                  }
                 />
               )}
               <LocalBackup />

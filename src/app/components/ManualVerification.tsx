@@ -1,10 +1,25 @@
 import React, { MouseEventHandler, ReactNode, useCallback, useState } from 'react';
-import { Box, Text, Chip, Icon, Icons, RectCords, PopOut, Menu, config, MenuItem } from 'folds';
+import {
+  Box,
+  Text,
+  Chip,
+  Icon,
+  Icons,
+  RectCords,
+  PopOut,
+  Menu,
+  config,
+  MenuItem,
+  color,
+} from 'folds';
 import FocusTrap from 'focus-trap-react';
 import { stopPropagation } from '../utils/keyboard';
 import { SettingTile } from './setting-tile';
 import { SecretStorageKeyContent } from '../../types/matrix/accountData';
 import { SecretStorageRecoveryKey, SecretStorageRecoveryPassphrase } from './SecretStorage';
+import { useMatrixClient } from '../hooks/useMatrixClient';
+import { AsyncStatus, useAsyncCallback } from '../hooks/useAsyncCallback';
+import { storePrivateKey } from '../../client/state/secretStorageKeys';
 
 export enum ManualVerificationMethod {
   RecoveryPassphrase = 'passphrase',
@@ -105,6 +120,7 @@ export function ManualVerificationTile({
   secretStorageKeyContent,
   options,
 }: ManualVerificationTileProps) {
+  const mx = useMatrixClient();
   const hasPassphrase = !!secretStorageKeyContent.passphrase;
   const [method, setMethod] = useState(
     hasPassphrase
@@ -112,15 +128,32 @@ export function ManualVerificationTile({
       : ManualVerificationMethod.RecoveryKey
   );
 
-  console.log(secretStorageKeyId, secretStorageKeyContent);
+  const verifyAndRestoreBackup = useCallback(
+    async (recoveryKey: Uint8Array) => {
+      const crypto = mx.getCrypto();
+      if (!crypto) {
+        throw new Error('Unexpected Error! Crypto object not found.');
+      }
 
-  const handleDecodedRecoveryKey = useCallback((recoveryKey: Uint8Array) => {
-    console.log(recoveryKey);
-    // bootstrap cross signing
-    // bootstrap key backup
-    // load session backup private key from session storage
-    // restore key backup
-  }, []);
+      storePrivateKey(secretStorageKeyId, recoveryKey);
+
+      await crypto.bootstrapCrossSigning({});
+      await crypto.bootstrapSecretStorage({});
+
+      await crypto.loadSessionBackupPrivateKeyFromSecretStorage();
+      await crypto.restoreKeyBackup({
+        progressCallback(progress) {
+          console.log(progress);
+        },
+      });
+    },
+    [mx, secretStorageKeyId]
+  );
+
+  const [verifyState, handleDecodedRecoveryKey] = useAsyncCallback<void, Error, [Uint8Array]>(
+    verifyAndRestoreBackup
+  );
+  const verifying = verifyState.status === AsyncStatus.Loading;
 
   return (
     <Box direction="Column" gap="200">
@@ -139,6 +172,7 @@ export function ManualVerificationTile({
       <Box direction="Column" gap="100">
         {method === ManualVerificationMethod.RecoveryKey && (
           <SecretStorageRecoveryKey
+            processing={verifying}
             keyContent={secretStorageKeyContent}
             onDecodedRecoveryKey={handleDecodedRecoveryKey}
           />
@@ -146,11 +180,22 @@ export function ManualVerificationTile({
         {method === ManualVerificationMethod.RecoveryPassphrase &&
           secretStorageKeyContent.passphrase && (
             <SecretStorageRecoveryPassphrase
+              processing={verifying}
               keyContent={secretStorageKeyContent}
               passphraseContent={secretStorageKeyContent.passphrase}
               onDecodedRecoveryKey={handleDecodedRecoveryKey}
             />
           )}
+        {verifyState.status === AsyncStatus.Error && (
+          <Text size="T200" style={{ color: color.Critical.Main }}>
+            <b>{verifyState.error.message}</b>
+          </Text>
+        )}
+        {verifyState.status === AsyncStatus.Success && (
+          <Text size="T200" style={{ color: color.Success.Main }}>
+            Device verified!
+          </Text>
+        )}
       </Box>
     </Box>
   );
