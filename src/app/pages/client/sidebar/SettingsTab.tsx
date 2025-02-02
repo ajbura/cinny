@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Overlay, OverlayBackdrop, OverlayCenter, Text } from 'folds';
-import FocusTrap from 'focus-trap-react';
+import { Text } from 'folds';
 import { SidebarItem, SidebarItemTooltip, SidebarAvatar } from '../../../components/sidebar';
 import { UserAvatar } from '../../../components/user-avatar';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
@@ -8,8 +7,8 @@ import { getMxIdLocalPart, mxcUrlToHttp } from '../../../utils/matrix';
 import { nameInitials } from '../../../utils/common';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
 import { Settings } from '../../../features/settings';
-import { stopPropagation } from '../../../utils/keyboard';
 import { useUserProfile } from '../../../hooks/useUserProfile';
+import { Modal500 } from '../../../components/Modal500';
 
 export function SettingsTab() {
   const mx = useMatrixClient();
@@ -41,22 +40,9 @@ export function SettingsTab() {
         )}
       </SidebarItemTooltip>
       {settings && (
-        <Overlay open backdrop={<OverlayBackdrop />}>
-          <OverlayCenter>
-            <FocusTrap
-              focusTrapOptions={{
-                initialFocus: false,
-                clickOutsideDeactivates: true,
-                onDeactivate: closeSettings,
-                escapeDeactivates: stopPropagation,
-              }}
-            >
-              <Modal size="500" variant="Background">
-                <Settings requestClose={closeSettings} />
-              </Modal>
-            </FocusTrap>
-          </OverlayCenter>
-        </Overlay>
+        <Modal500 requestClose={closeSettings}>
+          <Settings requestClose={closeSettings} />
+        </Modal500>
       )}
     </SidebarItem>
   );

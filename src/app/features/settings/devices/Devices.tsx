@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Box, Text, IconButton, Icon, Icons, Scroll, Button } from 'folds';
 import { Page, PageContent, PageHeader } from '../../../components/page';
 import { SequenceCard } from '../../../components/sequence-card';
 import { SequenceCardStyle } from '../styles.css';
 import { SettingTile } from '../../../components/setting-tile';
-import { useDeviceList } from '../../../hooks/useDeviceList';
+import { useDeviceIds, useDeviceList, useSplitCurrentDevice } from '../../../hooks/useDeviceList';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { LocalBackup } from './LocalBackup';
 import { DeviceLogoutBtn, DeviceTile, DeviceTilePlaceholder } from './DeviceTile';
@@ -38,11 +38,8 @@ export function Devices({ requestClose }: DevicesProps) {
   const crypto = mx.getCrypto();
   const crossSigningActive = useCrossSigningActive();
   const [devices, refreshDeviceList] = useDeviceList();
-  const currentDeviceId = mx.getDeviceId();
-  const currentDevice = currentDeviceId
-    ? devices?.find((device) => device.device_id === currentDeviceId)
-    : undefined;
-  const otherDevices = devices?.filter((device) => device.device_id !== currentDeviceId);
+
+  const [currentDevice, otherDevices] = useSplitCurrentDevice(devices);
 
   const verificationStatus = useDeviceVerificationStatus(
     crypto,
@@ -50,10 +47,7 @@ export function Devices({ requestClose }: DevicesProps) {
     currentDevice?.device_id
   );
 
-  const otherDevicesId = useMemo(
-    () => otherDevices?.map((device) => device.device_id) ?? [],
-    [otherDevices]
-  );
+  const otherDevicesId = useDeviceIds(otherDevices);
   const unverifiedDeviceCount = useUnverifiedDeviceCount(
     crypto,
     mx.getSafeUserId(),
@@ -141,7 +135,7 @@ export function Devices({ requestClose }: DevicesProps) {
                   <DeviceTilePlaceholder />
                 )}
               </Box>
-              {devices === null && <DevicesPlaceholder />}
+              {devices === undefined && <DevicesPlaceholder />}
               {otherDevices && (
                 <OtherDevices
                   devices={otherDevices}

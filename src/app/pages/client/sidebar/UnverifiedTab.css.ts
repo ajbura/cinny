@@ -22,3 +22,9 @@ export const UnverifiedAvatar = style({
   color: color.Critical.OnContainer,
   borderColor: color.Critical.ContainerLine,
 });
+
+export const UnverifiedOtherAvatar = style({
+  backgroundColor: color.Warning.Container,
+  color: color.Warning.OnContainer,
+  borderColor: color.Warning.ContainerLine,
+});

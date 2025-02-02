@@ -16,7 +16,7 @@ import { EmojisStickers } from './emojis-stickers';
 import { DeveloperTools } from './developer-tools';
 import { About } from './about';
 
-enum SettingsPages {
+export enum SettingsPages {
   GeneralPage,
   AccountPage,
   NotificationPage,
