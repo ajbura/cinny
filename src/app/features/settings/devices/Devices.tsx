@@ -7,7 +7,12 @@ import { SettingTile } from '../../../components/setting-tile';
 import { useDeviceIds, useDeviceList, useSplitCurrentDevice } from '../../../hooks/useDeviceList';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { LocalBackup } from './LocalBackup';
-import { DeviceLogoutBtn, DeviceTile, DeviceTilePlaceholder } from './DeviceTile';
+import {
+  DeviceLogoutBtn,
+  DeviceSessionKeyDetails,
+  DeviceTile,
+  DeviceTilePlaceholder,
+} from './DeviceTile';
 import { OtherDevices } from './OtherDevices';
 import { VerificationStatusBadge, VerifyCurrentDeviceTile } from './Verification';
 import {
@@ -119,7 +124,9 @@ export function Devices({ requestClose }: DevicesProps) {
                       device={currentDevice}
                       refreshDeviceList={refreshDeviceList}
                       options={<DeviceLogoutBtn />}
-                    />
+                    >
+                      {crypto && <DeviceSessionKeyDetails crypto={crypto} />}
+                    </DeviceTile>
                     {crossSigningActive &&
                       verificationStatus === VerificationStatus.Unverified &&
                       defaultSecretStorageKeyId &&

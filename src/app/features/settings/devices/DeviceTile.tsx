@@ -15,6 +15,7 @@ import {
   OverlayBackdrop,
   OverlayCenter,
 } from 'folds';
+import { CryptoApi } from 'matrix-js-sdk/lib/crypto-api';
 import FocusTrap from 'focus-trap-react';
 import { IMyDevice, MatrixError } from 'matrix-js-sdk';
 import { SettingTile } from '../../../components/setting-tile';
@@ -68,6 +69,31 @@ function DeviceDetails({ device }: { device: IMyDevice }) {
         </Text>
       )}
     </>
+  );
+}
+
+type DeviceSessionKeyDetailsProps = {
+  crypto: CryptoApi;
+};
+export function DeviceSessionKeyDetails({ crypto }: DeviceSessionKeyDetailsProps) {
+  const [keysState, loadKeys] = useAsyncCallback(
+    useCallback(() => {
+      const keys = crypto.getOwnDeviceKeys();
+      return keys;
+    }, [crypto])
+  );
+
+  useEffect(() => {
+    loadKeys();
+  }, [loadKeys]);
+
+  if (keysState.status === AsyncStatus.Error) return null;
+
+  return (
+    <Text className={BreakWord} size="T200" priority="300">
+      Session Key:{' '}
+      <i>{keysState.status === AsyncStatus.Success ? keysState.data.ed25519 : 'loading...'}</i>
+    </Text>
   );
 }
 
@@ -233,6 +259,7 @@ type DeviceTileProps = {
   refreshDeviceList: () => Promise<void>;
   disabled?: boolean;
   options?: ReactNode;
+  children?: ReactNode;
 };
 export function DeviceTile({
   device,
@@ -240,6 +267,7 @@ export function DeviceTile({
   refreshDeviceList,
   disabled,
   options,
+  children,
 }: DeviceTileProps) {
   const activeTs = device.last_seen_ts;
   const [details, setDetails] = useState(false);
@@ -283,7 +311,12 @@ export function DeviceTile({
         <Text size="T300">{device.display_name ?? device.device_id}</Text>
         <Box direction="Column">
           {typeof activeTs === 'number' && <DeviceActiveTime ts={activeTs} />}
-          {details && <DeviceDetails device={device} />}
+          {details && (
+            <>
+              <DeviceDetails device={device} />
+              {children}
+            </>
+          )}
         </Box>
       </SettingTile>
       {edit && (
